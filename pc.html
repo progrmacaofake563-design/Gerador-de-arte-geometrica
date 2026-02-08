@@ -294,6 +294,13 @@
             </div>
             
             <input type="text" id="shapeNameInput" placeholder="Nome da forma (ex: Estrela)" style="padding: 10px; background: #0f172a; border: 1px solid var(--border); color: white; border-radius: 4px;">
+
+<label style="display: flex; align-items: center; gap: 8px; font-size: 0.9rem; color: #cbd5e1; cursor: pointer; background: #334155; padding: 8px; border-radius: 4px;">
+    <input type="checkbox" id="fixedDirectionCheck" style="accent-color: #a855f7; width: 16px; height: 16px;">
+    🔒 Direção Única (Não rotacionar)
+</label>
+
+<div class="creator-tools">
             
             <div class="creator-tools">
                 <button class="tool-btn" onclick="toggleCreator(false)" style="background: transparent; border: 1px solid var(--border);">Cancelar</button>
@@ -681,6 +688,12 @@
             if (customShapesRegistry[s]) {
                 const points = customShapesRegistry[s];
                 if (!points || points.length < 3) return; 
+                
+                // NOVO: Se a forma tiver a flag fixedRotation, forçamos o ângulo para 0
+                if (points.fixedRotation) {
+                    angle = 0; 
+                }
+
                 ctx.save();
                 ctx.translate(x, y);
                 ctx.rotate(angle); 
@@ -952,6 +965,9 @@
 
             const name = document.getElementById('shapeNameInput').value || 'Forma ' + (Object.keys(customShapesRegistry).length + 1);
             
+            // NOVO: Ler o estado do checkbox
+            const isFixed = document.getElementById('fixedDirectionCheck').checked;
+            
             let minX=1000, maxX=0, minY=1000, maxY=0;
             drawnPoints.forEach(p => {
                 if(p.x < minX) minX = p.x; if(p.x > maxX) maxX = p.x;
@@ -963,10 +979,13 @@
             const centerY = minY + height/2;
             const scale = Math.max(width, height) || 1;
 
-            const normalizedPoints = drawnPoints.map(p => ({
+          const normalizedPoints = drawnPoints.map(p => ({
                 x: (p.x - centerX) / scale,
                 y: (p.y - centerY) / scale
             }));
+
+            // NOVO: Salvar a propriedade de rotação fixa dentro do array de pontos
+            normalizedPoints.fixedRotation = isFixed;
 
             const id = 'custom_v_' + Date.now();
             customShapesRegistry[id] = normalizedPoints;
@@ -974,9 +993,21 @@
             const container = document.createElement('div');
             container.className = 'custom-shape-wrapper';
             
+            // NOVO: Se for direção única, muda a borda para Roxo
+            if (isFixed) {
+                container.style.borderColor = '#a855f7'; // Roxo
+                container.style.background = 'rgba(168, 85, 247, 0.1)';
+            }
+            
             const label = document.createElement('label');
             label.className = 'custom-shape-label';
-            label.innerHTML = `<input type="checkbox" value="${id}" checked> ${name}`;
+            
+            // NOVO: Se for direção única, muda o texto para Roxo
+            if (isFixed) {
+                label.style.color = '#d8b4fe'; // Roxo claro
+            }
+
+            label.innerHTML = `<input type="checkbox" value="${id}" checked> ${name} ${isFixed ? '🔒' : ''}`;
             label.querySelector('input').onchange = updateShapesList;
             
             const delBtn = document.createElement('button');
@@ -1003,4 +1034,5 @@
     </script>
 </body>
 </html>
+
 
