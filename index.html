@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Estúdio Criativo HD</title>
+    <title>Estúdio Criativo HD - Versão Brush Pro</title>
     <style>
         :root {
             --primary: #8b5cf6;
@@ -108,23 +108,23 @@
         .shape-option input { margin: 0; accent-color: var(--accent); cursor: pointer; }
 
         .custom-shape-wrapper {
-            background: rgba(239, 68, 68, 0.1); 
-            border: 1px solid var(--danger);
+            background: rgba(56, 189, 248, 0.1); 
+            border: 1px solid var(--accent);
             border-radius: 6px;
             display: flex;
             align-items: center;
             overflow: hidden;
             transition: 0.2s;
         }
-        .custom-shape-wrapper:hover { background: rgba(239, 68, 68, 0.2); }
-        .custom-shape-label { flex: 1; padding: 8px; font-size: 0.8rem; color: #fca5a5; display: flex; align-items: center; gap: 8px; cursor: pointer; }
-        .custom-shape-label input { accent-color: var(--danger); margin: 0; }
+        .custom-shape-wrapper:hover { background: rgba(56, 189, 248, 0.2); }
+        .custom-shape-label { flex: 1; padding: 8px; font-size: 0.8rem; color: #bae6fd; display: flex; align-items: center; gap: 8px; cursor: pointer; }
+        .custom-shape-label input { accent-color: var(--accent); margin: 0; }
         .btn-delete-shape {
-            background: transparent; border: none; border-left: 1px solid rgba(239, 68, 68, 0.3);
-            color: var(--danger); cursor: pointer; padding: 0 8px; height: 100%;
+            background: transparent; border: none; border-left: 1px solid rgba(56, 189, 248, 0.3);
+            color: var(--accent); cursor: pointer; padding: 0 8px; height: 100%;
             display: flex; align-items: center; justify-content: center; font-size: 1rem; transition: 0.2s;
         }
-        .btn-delete-shape:hover { background: var(--danger); color: white; }
+        .btn-delete-shape:hover { background: var(--accent); color: #000; }
 
         .workspace {
             display: flex;
@@ -179,7 +179,7 @@
             border-radius: 12px;
             padding: 12px 20px;
             display: grid;
-            grid-template-columns: 1fr auto auto 1fr 1fr auto auto auto;
+            grid-template-columns: 1fr auto auto 1fr 1fr auto auto;
             gap: 15px;
             align-items: center;
             flex-shrink: 0;
@@ -198,12 +198,11 @@
         .btn-search { background: linear-gradient(135deg, #0ea5e9, #6366f1); }
         .btn-random { background: #f59e0b; color: #fff; } 
         .btn-upload { background: #334155; }
-        .btn-create { background: var(--danger); margin-top: 10px; } 
+        .btn-create { background: var(--accent); color:black; margin-top: 10px; } 
         .btn-action { background: #334155; height: 100%; font-size: 1.2rem; width: 45px; }
         .btn-dl { background: #10b981; }
         .btn-rec { background: #ef4444; color: white; }
         .btn-rec.recording { animation: pulse-red 1.5s infinite; background: #991b1b; }
-        .btn-svg { background: #eab308; color: black; }
         .btn-fs { background: #6366f1; }
         
         .btn-toggle { background: #334155; color: #cbd5e1; border: 1px solid var(--border); }
@@ -279,13 +278,13 @@
         <div class="creator-panel">
             <h2 style="margin:0; font-size: 1.2rem; color:white;">Criar Nova Forma</h2>
             <div style="font-size: 0.8rem; color: #94a3b8;">
-                Desenhe ou importe uma imagem (PNG/SVG) para converter em vetor.
+                Desenhe ou importe um PNG. O sistema irá "escanear" a forma automaticamente.
             </div>
             
             <div class="creator-tools">
                 <button class="tool-btn" id="btnClearShape">🗑️ Limpar</button>
                 <label class="tool-btn tool-btn-imp">
-                    📂 Importar Imagem
+                    📂 Importar PNG
                     <input type="file" id="importShapeInput" hidden accept="image/*">
                 </label>
             </div>
@@ -358,7 +357,7 @@
                     <label class="shape-option"><input type="checkbox" value="triangle"> Triâng</label>
                     <label class="shape-option"><input type="checkbox" value="line"> Linhas</label>
                 </div>
-                <button id="btnOpenCreator" class="btn btn-create">🎨 Criar Forma</button>
+                <button id="btnOpenCreator" class="btn btn-create">➕ Importar Forma</button>
             </div>
             
             <hr style="border:0; border-top:1px solid var(--border); width: 100%;">
@@ -415,7 +414,6 @@
                 </div>
                 
                 <button id="btnRecord" class="btn btn-action btn-rec" title="Gravar Vídeo (WebM)">🔴</button>
-                <button id="btnExportSVG" class="btn btn-action btn-svg" title="Exportar Vetor (SVG)">✒️</button>
                 <button id="btnDownload" class="btn btn-action btn-dl" title="Salvar PNG">💾</button>
                 <button id="btnFullscreen" class="btn btn-action btn-fs" title="Tela Cheia">⛶</button>
             </div>
@@ -522,7 +520,6 @@
         }
 
         function startArt(clearCanvas) {
-            // USAR RESOLUÇÃO FULL HD (1920x1080) NA ANÁLISE
             const analysisW = config.width; 
             const analysisH = config.height;
             sourceW = analysisW; sourceH = analysisH;
@@ -811,60 +808,6 @@
             URL.revokeObjectURL(url);
         }
 
-        document.getElementById('btnExportSVG').onclick = () => {
-            if(!sourceData) { alert("Carregue uma imagem primeiro."); return; }
-            const originalRunning = config.isRunning;
-            config.isRunning = false; 
-            setLoading(true, "Gerando Vetor...");
-            
-            setTimeout(() => {
-                const svgW = 1920, svgH = 1080;
-                let svgContent = `<svg xmlns="http://www.w3.org/2000/svg" width="${svgW}" height="${svgH}" viewBox="0 0 ${svgW} ${svgH}" style="background-color:${ctx.fillStyle}">`;
-                
-                const shapeCount = 3000;
-                let shapesToUse = config.shapes.length > 0 ? config.shapes : ['circle'];
-
-                for(let i=0; i<shapeCount; i++) {
-                     const ax = Math.floor(Math.random() * sourceW);
-                     const ay = Math.floor(Math.random() * sourceH);
-                     const idx = (ay * sourceW + ax) * 4;
-                     if (!sourceData[idx+3] || sourceData[idx+3] < 20) continue; 
-                     
-                     const x = (ax / sourceW) * svgW;
-                     const y = (ay / sourceH) * svgH;
-                     
-                     const brightness = (sourceData[idx] + sourceData[idx+1] + sourceData[idx+2]) / 3;
-                     const size = 20 * (0.5 + (brightness/255)*1.5);
-                     
-                     const r=sourceData[idx], g=sourceData[idx+1], b=sourceData[idx+2];
-                     const color = getPaletteColor(r,g,b);
-                     
-                     let angle = config.useFlowField ? config.flowAngles[ay * sourceW + ax] : Math.random()*6.28;
-                     const s = shapesToUse[Math.floor(Math.random() * shapesToUse.length)];
-
-                     if(s === 'circle') {
-                         svgContent += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${(size/2).toFixed(1)}" fill="${color}" />`;
-                     } else if (s === 'line') {
-                         const x1 = x - Math.cos(angle)*size;
-                         const y1 = y - Math.sin(angle)*size;
-                         const x2 = x + Math.cos(angle)*size;
-                         const y2 = y + Math.sin(angle)*size;
-                         svgContent += `<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="${color}" stroke-width="${(size/4).toFixed(1)}" />`;
-                     } else {
-                         svgContent += `<rect x="${(x-size/2).toFixed(1)}" y="${(y-size/2).toFixed(1)}" width="${size.toFixed(1)}" height="${size.toFixed(1)}" fill="${color}" transform="rotate(${(angle*57.29).toFixed(1)} ${x} ${y})" />`;
-                     }
-                }
-                
-                svgContent += `</svg>`;
-                const blob = new Blob([svgContent], {type: 'image/svg+xml'});
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a'); a.href = url; a.download = `Vetor_Arte_${Date.now()}.svg`; a.click();
-                
-                setLoading(false);
-                if(originalRunning) config.isRunning = true; loop();
-            }, 100);
-        };
-
         const creatorModal = document.getElementById('creatorModal');
         const creatorCanvas = document.getElementById('creatorCanvas');
         const cCtx = creatorCanvas.getContext('2d', { willReadFrequently: true });
@@ -898,78 +841,65 @@
             reader.onload = (evt) => {
                 const img = new Image();
                 img.onload = () => {
-                    traceImage(img);
+                    radialScanImage(img);
                 };
                 img.src = evt.target.result;
             };
             reader.readAsDataURL(file);
         };
 
-        function traceImage(img) {
+        // NOVA FUNÇÃO: Scanner Radial (muito mais robusto que o anterior)
+        function radialScanImage(img) {
             resetCreator();
             const w = 150, h = 150; 
             const tempC = document.createElement('canvas');
             tempC.width = w; tempC.height = h;
             const tempCtx = tempC.getContext('2d');
             
-            const scale = Math.min(w/img.width, h/img.height) * 0.8;
+            // Desenha imagem centralizada
+            const scale = Math.min(w/img.width, h/img.height) * 0.85;
             const dw = img.width * scale, dh = img.height * scale;
-            tempCtx.drawImage(img, (w-dw)/2, (h-dh)/2, dw, dh);
+            const dx = (w-dw)/2, dy = (h-dh)/2;
+            tempCtx.drawImage(img, dx, dy, dw, dh);
             
             const data = tempCtx.getImageData(0, 0, w, h).data;
-            
-            let sx = -1, sy = -1;
-            for(let i=0; i<data.length; i+=4) {
-                if(data[i+3] > 128) { 
-                    const idx = i/4;
-                    sx = idx % w; sy = Math.floor(idx / w);
-                    break;
-                }
-            }
-
-            if(sx === -1) { alert("Imagem vazia ou transparente demais."); return; }
-
+            const cx = w/2, cy = h/2;
             let points = [];
-            let cx = sx, cy = sy;
-            points.push({x: cx, y: cy});
             
-            const dx = [0, 1, 1, 1, 0, -1, -1, -1];
-            const dy = [-1, -1, 0, 1, 1, 1, 0, -1];
-            let dir = 7; 
-
-            let maxIter = 3000;
-            while(maxIter-- > 0) {
-                let found = false;
-                const startDir = (dir + 5) % 8; 
+            // Dispara 72 raios (um a cada 5 graus)
+            const rayCount = 72; 
+            for (let i = 0; i < rayCount; i++) {
+                const angle = (i / rayCount) * Math.PI * 2;
+                const cos = Math.cos(angle);
+                const sin = Math.sin(angle);
                 
-                for(let i=0; i<8; i++) {
-                    const checkDir = (startDir + i) % 8;
-                    const nx = cx + dx[checkDir];
-                    const ny = cy + dy[checkDir];
+                // Vai do centro para fora
+                let lastValidX = cx;
+                let lastValidY = cy;
+                
+                // Escaneia do centro até a borda
+                for (let r = 0; r < w/2; r++) {
+                    const tx = Math.floor(cx + cos * r);
+                    const ty = Math.floor(cy + sin * r);
                     
-                    if(nx >= 0 && nx < w && ny >= 0 && ny < h) {
-                        const idx = (ny * w + nx) * 4;
-                        if(data[idx+3] > 128) {
-                            cx = nx; cy = ny;
-                            points.push({x: cx, y: cy});
-                            dir = checkDir;
-                            found = true;
-                            break;
-                        }
+                    if (tx < 0 || tx >= w || ty < 0 || ty >= h) break;
+                    
+                    const idx = (ty * w + tx) * 4;
+                    // Se o pixel não é transparente
+                    if (data[idx+3] > 40) { 
+                        lastValidX = tx;
+                        lastValidY = ty;
                     }
                 }
                 
-                if(!found) break; 
-                if(cx === sx && cy === sy) break; 
-            }
-
-            drawnPoints = [];
-            for(let i=0; i<points.length; i+=3) { 
-                drawnPoints.push({
-                    x: points[i].x * (400/w),
-                    y: points[i].y * (400/h)
+                // Normaliza para o canvas de 400px
+                points.push({
+                    x: lastValidX * (400/w),
+                    y: lastValidY * (400/h)
                 });
             }
+
+            drawnPoints = points;
             redrawFromPoints();
         }
 
@@ -1073,4 +1003,3 @@
     </script>
 </body>
 </html>
-
