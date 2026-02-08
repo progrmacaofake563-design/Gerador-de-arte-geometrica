@@ -115,6 +115,26 @@
             align-items: center;
             overflow: hidden;
             transition: 0.2s;
+
+/* --- ADICIONE ISTO AO SEU CSS --- */
+.custom-shape-wrapper.purple-mode {
+    background: rgba(139, 92, 246, 0.15); /* Roxo translúcido */
+    border-color: var(--primary);         /* Borda roxa definida no :root */
+}
+
+.custom-shape-wrapper.purple-mode .custom-shape-label {
+    color: #e9d5ff; /* Texto lilás claro */
+}
+
+.custom-shape-wrapper.purple-mode .btn-delete-shape {
+    color: var(--primary);
+    border-left-color: rgba(139, 92, 246, 0.3);
+}
+
+.custom-shape-wrapper.purple-mode .btn-delete-shape:hover {
+    background: var(--primary);
+    color: white;
+}
         }
         .custom-shape-wrapper:hover { background: rgba(56, 189, 248, 0.2); }
         .custom-shape-label { flex: 1; padding: 8px; font-size: 0.8rem; color: #bae6fd; display: flex; align-items: center; gap: 8px; cursor: pointer; }
@@ -294,6 +314,11 @@
             </div>
             
             <input type="text" id="shapeNameInput" placeholder="Nome da forma (ex: Estrela)" style="padding: 10px; background: #0f172a; border: 1px solid var(--border); color: white; border-radius: 4px;">
+
+<label style="display:flex; align-items:center; gap:8px; margin-top:10px; font-size:0.9rem; color:#cbd5e1; cursor:pointer;">
+    <input type="checkbox" id="fixedRotationCheck" style="accent-color: var(--primary); width:16px; height:16px;">
+    🔒 Direção Única (Não rotacionar ao desenhar)
+</label>
             
             <div class="creator-tools">
                 <button class="tool-btn" onclick="toggleCreator(false)" style="background: transparent; border: 1px solid var(--border);">Cancelar</button>
@@ -677,13 +702,24 @@
             animationFrameId = requestAnimationFrame(loop);
         }
 
-        function drawShape(x, y, size, s, angle) {
+      function drawShape(x, y, size, s, angle) {
+            // 1. Verifica se é uma forma customizada
             if (customShapesRegistry[s]) {
-                const points = customShapesRegistry[s];
+                const shapeData = customShapesRegistry[s];
+                
+                // Compatibilidade: verifica se é o novo formato (objeto) ou o antigo (array)
+                const points = Array.isArray(shapeData) ? shapeData : shapeData.points;
+                const isFixed = shapeData.fixed || false;
+
                 if (!points || points.length < 3) return; 
+
                 ctx.save();
                 ctx.translate(x, y);
-                ctx.rotate(angle); 
+                
+                // Só roda se NÃO for fixo
+                if (!isFixed) {
+                    ctx.rotate(angle); 
+                }
                 
                 ctx.beginPath();
                 ctx.moveTo(points[0].x * size, points[0].y * size);
@@ -696,6 +732,7 @@
                 return;
             }
             
+            // 2. Se não for customizada, desenha as formas padrão
             ctx.beginPath();
             if(s === 'circle') { 
                 ctx.arc(x, y, size/2, 0, Math.PI*2); ctx.fill(); 
@@ -820,9 +857,11 @@
         }
 
         function resetCreator() {
-            cCtx.clearRect(0,0,400,400); 
-            drawnPoints = [];
-        }
+    cCtx.clearRect(0,0,400,400); 
+    drawnPoints = [];
+    // ADICIONE ESTA LINHA:
+    document.getElementById('fixedRotationCheck').checked = false;
+}
         
         function getMousePos(evt) {
             const rect = creatorCanvas.getBoundingClientRect();
@@ -948,54 +987,69 @@
         });
 
         document.getElementById('btnSaveShape').onclick = () => {
-            if(drawnPoints.length < 3) { alert("Desenhe ou importe uma forma!"); return; }
+    if(drawnPoints.length < 3) { alert("Desenhe ou importe uma forma!"); return; }
 
-            const name = document.getElementById('shapeNameInput').value || 'Forma ' + (Object.keys(customShapesRegistry).length + 1);
-            
-            let minX=1000, maxX=0, minY=1000, maxY=0;
-            drawnPoints.forEach(p => {
-                if(p.x < minX) minX = p.x; if(p.x > maxX) maxX = p.x;
-                if(p.y < minY) minY = p.y; if(p.y > maxY) maxY = p.y;
-            });
-            const width = maxX - minX;
-            const height = maxY - minY;
-            const centerX = minX + width/2;
-            const centerY = minY + height/2;
-            const scale = Math.max(width, height) || 1;
+    const name = document.getElementById('shapeNameInput').value || 'Forma ' + (Object.keys(customShapesRegistry).length + 1);
+    
+    // Captura se é direção única
+    const isFixed = document.getElementById('fixedRotationCheck').checked;
 
-            const normalizedPoints = drawnPoints.map(p => ({
-                x: (p.x - centerX) / scale,
-                y: (p.y - centerY) / scale
-            }));
+    let minX=1000, maxX=0, minY=1000, maxY=0;
+    drawnPoints.forEach(p => {
+        if(p.x < minX) minX = p.x; if(p.x > maxX) maxX = p.x;
+        if(p.y < minY) minY = p.y; if(p.y > maxY) maxY = p.y;
+    });
+    const width = maxX - minX;
+    const height = maxY - minY;
+    const centerX = minX + width/2;
+    const centerY = minY + height/2;
+    const scale = Math.max(width, height) || 1;
 
-            const id = 'custom_v_' + Date.now();
-            customShapesRegistry[id] = normalizedPoints;
+    const normalizedPoints = drawnPoints.map(p => ({
+        x: (p.x - centerX) / scale,
+        y: (p.y - centerY) / scale
+    }));
 
-            const container = document.createElement('div');
-            container.className = 'custom-shape-wrapper';
-            
-            const label = document.createElement('label');
-            label.className = 'custom-shape-label';
-            label.innerHTML = `<input type="checkbox" value="${id}" checked> ${name}`;
-            label.querySelector('input').onchange = updateShapesList;
-            
-            const delBtn = document.createElement('button');
-            delBtn.className = 'btn-delete-shape';
-            delBtn.innerHTML = '🗑️';
-            delBtn.title = 'Excluir Forma';
-            delBtn.onclick = (e) => {
-                e.preventDefault(); e.stopPropagation();
-                delete customShapesRegistry[id];
-                container.remove();
-                updateShapesList();
-            };
-            
-            container.appendChild(label);
-            container.appendChild(delBtn);
-            document.getElementById('shapesContainer').appendChild(container);
-            updateShapesList();
-            toggleCreator(false);
-        };
+    const id = 'custom_v_' + Date.now();
+    
+    // AGORA SALVAMOS UM OBJETO COM AS PROPRIEDADES, NÃO SÓ OS PONTOS
+    customShapesRegistry[id] = {
+        points: normalizedPoints,
+        fixed: isFixed
+    };
+
+    const container = document.createElement('div');
+    container.className = 'custom-shape-wrapper';
+    
+    // SE FOR FIXO, ADICIONA A CLASSE ROXA
+    if (isFixed) {
+        container.classList.add('purple-mode');
+    }
+    
+    const label = document.createElement('label');
+    label.className = 'custom-shape-label';
+    // Adiciona um ícone diferente se for fixo
+    const icon = isFixed ? '🔒' : ''; 
+    label.innerHTML = `<input type="checkbox" value="${id}" checked> ${icon} ${name}`;
+    label.querySelector('input').onchange = updateShapesList;
+    
+    const delBtn = document.createElement('button');
+    delBtn.className = 'btn-delete-shape';
+    delBtn.innerHTML = '🗑️';
+    delBtn.title = 'Excluir Forma';
+    delBtn.onclick = (e) => {
+        e.preventDefault(); e.stopPropagation();
+        delete customShapesRegistry[id];
+        container.remove();
+        updateShapesList();
+    };
+    
+    container.appendChild(label);
+    container.appendChild(delBtn);
+    document.getElementById('shapesContainer').appendChild(container);
+    updateShapesList();
+    toggleCreator(false);
+};
 
         document.getElementById('btnOpenCreator').onclick = () => toggleCreator(true);
 
