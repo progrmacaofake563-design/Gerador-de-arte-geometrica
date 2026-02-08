@@ -4,13 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="theme-color" content="#0f172a">
-    <title>GeoArt Mobile Guide</title>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Estúdio Criativo HD Mobile</title>
     <style>
         :root {
             --primary: #8b5cf6;
             --accent: #38bdf8;
             --success: #22c55e;
             --danger: #ef4444;
+            --warning: #f59e0b;
             --dark: #0f172a;
             --panel: #1e293b;
             --text: #f8fafc;
@@ -24,7 +27,7 @@
             background-color: var(--dark);
             color: var(--text);
             margin: 0;
-            height: 100dvh;
+            height: 100dvh; /* dVh é melhor para mobile browsers */
             display: flex;
             flex-direction: column;
             overflow: hidden;
@@ -37,438 +40,690 @@
             align-items: center;
             justify-content: space-between;
             padding: 0 15px;
-            background: rgba(15, 23, 42, 0.98);
+            background: rgba(15, 23, 42, 0.95);
             border-bottom: 1px solid var(--border);
-            z-index: 50;
             flex-shrink: 0;
+            z-index: 50;
+        }
+        .header-left { display: flex; align-items: center; gap: 15px; }
+        .toggle-sidebar-btn {
+            background: transparent; border: 1px solid var(--border); 
+            color: var(--text); border-radius: 4px; cursor: pointer;
+            padding: 8px 12px; font-size: 1.4rem; transition: 0.2s;
         }
 
-        /* Botão do Menu com Posição Relativa para a bolinha */
-        .toggle-btn { 
-            background: none; border: 1px solid var(--border); color: white; 
-            padding: 5px 10px; border-radius: 4px; font-size: 1.2rem; 
-            position: relative; /* Importante para a bolinha */
-            transition: 0.2s;
-        }
-        .toggle-btn:active { background: #334155; }
-
-        /* A BOLINHA VERMELHA PISCANTE */
-        .guide-dot {
-            position: absolute;
-            top: -5px;
-            right: -5px;
-            width: 14px;
-            height: 14px;
-            background-color: var(--danger);
-            border-radius: 50%;
-            border: 2px solid var(--dark); /* Borda para destacar */
-            box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
-            animation: pulse-red 1.5s infinite;
-            pointer-events: none; /* Deixa o clique passar */
-            z-index: 100;
+        h1 { 
+            font-size: 1.1rem; margin: 0; 
+            background: linear-gradient(to right, #c084fc, #38bdf8); 
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; 
         }
 
-        @keyframes pulse-red {
-            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
-            70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
-            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
-        }
-
-        /* LAYOUT GERAL */
+        /* LAYOUT PRINCIPAL */
         .app-container {
-            position: relative;
-            width: 100%;
+            display: grid;
+            grid-template-columns: 280px 1fr;
             height: calc(100dvh - 50px);
-            overflow: hidden;
+            width: 100%;
+            position: relative;
         }
 
-        /* MENU LATERAL (Overlay) */
+        /* SIDEBAR (MENU LATERAL) */
         .sidebar {
-            position: absolute;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: rgba(15, 23, 42, 0.98);
-            backdrop-filter: blur(10px);
-            z-index: 100;
-            transform: translateY(100%);
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            padding: 20px;
+            background: var(--panel);
+            border-right: 1px solid var(--border);
+            padding: 15px;
             overflow-y: auto;
-            padding-bottom: 100px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            z-index: 200;
         }
-        .sidebar.open { transform: translateY(0); }
+        
+        .panel-section h3 { margin: 0 0 10px 0; font-size: 0.75rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; }
 
-        .panel-section { margin-bottom: 25px; }
-        .panel-section h3 { margin: 0 0 12px 0; color: #94a3b8; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid var(--border); padding-bottom: 5px; }
+        .sidebar-shapes {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+        
+        .shape-option {
+            background: #334155; padding: 10px; border-radius: 6px;
+            font-size: 0.8rem; display: flex; align-items: center; gap: 8px;
+            cursor: pointer; border: 1px solid transparent;
+        }
+        .shape-option input { margin: 0; accent-color: var(--accent); width: 20px; height: 20px; }
 
-        /* CANVAS AREA */
-        .canvas-wrapper {
-            width: 100%; height: 100%;
-            background: #000;
+        /* AREA DO CANVAS */
+        .workspace {
+            display: flex;
+            flex-direction: column;
+            padding: 10px;
+            gap: 10px;
+            background: #020617;
+            height: 100%;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .canvas-area {
+            flex: 1;
             display: flex;
             justify-content: center;
             align-items: center;
             position: relative;
+            background: #000;
+            border-radius: 8px;
+            overflow: hidden;
         }
-        canvas { width: 100%; height: 100%; object-fit: contain; }
 
-        /* BARRA DE CONTROLES */
-        .controls-bar {
-            position: absolute;
-            bottom: 0; left: 0; width: 100%;
-            background: rgba(30, 41, 59, 0.95);
-            backdrop-filter: blur(8px);
-            border-top: 1px solid var(--border);
-            padding: 12px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            overflow-x: auto;
-            border-radius: 15px 15px 0 0;
-            z-index: 50;
-            padding-bottom: max(15px, env(safe-area-inset-bottom));
+        canvas {
+            width: 100%; height: 100%; object-fit: contain;
         }
+
+        /* BARRA DE CONTROLES INFERIOR */
+        .controls-bar {
+            height: auto;
+            background: var(--panel);
+            border-top: 1px solid var(--border);
+            border-radius: 12px 12px 0 0;
+            padding: 10px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            overflow-x: auto; /* Rolagem horizontal */
+            padding-bottom: 20px; /* Para segurança no iPhone (Home bar) */
+        }
+        /* Esconder scrollbar mas manter funcionalidade */
         .controls-bar::-webkit-scrollbar { display: none; }
 
-        /* ELEMENTOS DE UI */
-        .btn { padding: 10px 16px; border: none; border-radius: 8px; font-weight: 600; font-size: 0.9rem; color: white; white-space: nowrap; cursor: pointer; display: flex; align-items: center; gap: 6px; }
-        .btn-round { width: 50px; height: 50px; border-radius: 50%; justify-content: center; font-size: 1.4rem; flex-shrink: 0; }
-        .btn-rec { background: var(--danger); }
-        .btn-dl { background: var(--success); }
-        .btn-opt { background: var(--panel); border: 1px solid var(--border); color: #cbd5e1; }
-        .btn-opt.active { background: var(--accent); color: #000; border-color: var(--accent); }
-        .btn-block { width: 100%; margin-bottom: 8px; padding: 14px; justify-content: center; background: #334155; }
-        
-        .control-group { display: flex; flex-direction: column; gap: 4px; min-width: 100px; }
-        .control-label { font-size: 0.7rem; color: #94a3b8; }
-        select { background: #0f172a; color: white; border: 1px solid var(--border); padding: 8px; border-radius: 6px; width: 100%; }
-        input[type=range] { width: 100%; accent-color: var(--accent); height: 24px; }
-
-        /* Loader */
-        .loader-overlay {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.85); z-index: 20;
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            pointer-events: none; opacity: 0; transition: opacity 0.3s;
+        .btn {
+            padding: 12px; border: none; border-radius: 8px;
+            font-weight: 600; cursor: pointer; font-size: 0.9rem;
+            display: flex; align-items: center; justify-content: center; gap: 8px; color: white;
+            white-space: nowrap; flex-shrink: 0;
         }
-        .loader-overlay.show { opacity: 1; pointer-events: all; }
-        .spinner { width: 40px; height: 40px; border: 4px solid rgba(255,255,255,0.3); border-top-color: var(--accent); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 15px; }
-        @keyframes spin { to { transform: rotate(360deg); } }
+        .btn-action { width: 50px; height: 50px; font-size: 1.5rem; border-radius: 50%; }
         
-        /* Checkboxes */
-        .check-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .check-item { background: #334155; padding: 12px; border-radius: 8px; display: flex; align-items: center; gap: 10px; }
-        input[type=checkbox] { width: 20px; height: 20px; accent-color: var(--accent); }
+        /* Cores dos Botões */
+        .btn-search { background: linear-gradient(135deg, #0ea5e9, #6366f1); }
+        .btn-random { background: #f59e0b; color: #fff; } 
+        .btn-upload { background: #334155; width: 100%; padding: 12px; border-radius: 8px; color:white; display:block; text-align:center;}
+        .btn-create { background: var(--danger); margin-top: 10px; } 
+        .btn-dl { background: #10b981; }
+        .btn-rec { background: #ef4444; color: white; }
+        .btn-rec.recording { animation: pulse-red 1.5s infinite; background: #991b1b; }
+        .btn-svg { background: #eab308; color: black; }
+        .btn-fs { background: #6366f1; }
+        
+        .btn-toggle { background: #334155; color: #cbd5e1; border: 1px solid var(--border); }
+        .btn-toggle.active { background: var(--success); color: #000; }
+        
+        .btn-trend { background: rgba(255,255,255,0.05); color: #cbd5e1; border: 1px solid var(--border); padding: 12px; margin-bottom: 5px; width: 100%; text-align: left;}
 
-        .recording { animation: pulse-rec 1.5s infinite; background: #991b1b !important; }
-        @keyframes pulse-rec { 0% { opacity: 1; } 50% { opacity: 0.6; } 100% { opacity: 1; } }
+        /* Inputs */
+        .control-group { min-width: 100px; display: flex; flex-direction: column; gap: 4px; }
+        input[type=range] { width: 100%; accent-color: var(--primary); height: 20px; }
+        select { background: #0f172a; color: white; padding: 8px; border-radius: 4px; font-size: 1rem;}
+
+        /* MODAL CRIADOR */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9); z-index: 1000; 
+            display: none; align-items: center; justify-content: center;
+        }
+        .modal-overlay.active { display: flex; }
+        
+        .creator-panel {
+            background: var(--panel); padding: 15px; border-radius: 12px; 
+            width: 95%; max-width: 400px;
+            display: flex; flex-direction: column; gap: 15px;
+        }
+        
+        .creator-canvas-wrapper {
+            width: 100%; aspect-ratio: 1/1; 
+            background-color: #0f172a; border: 1px solid var(--border);
+            touch-action: none; /* Importante para desenhar no celular */
+        }
+        #creatorCanvas { width: 100%; height: 100%; }
+
+        /* --- ADAPTAÇÃO MOBILE (MEDIA QUERIES) --- */
+        @media (max-width: 900px) {
+            .app-container { display: block; }
+            
+            /* Menu Lateral vira Overlay */
+            .sidebar {
+                position: fixed; top: 50px; left: 0; width: 100%; height: calc(100% - 50px);
+                transform: translateX(-100%); transition: transform 0.3s ease;
+                padding-bottom: 100px; /* Espaço extra no final */
+            }
+            .app-container.menu-open .sidebar { transform: translateX(0); }
+            
+            .workspace { height: calc(100dvh - 50px); }
+            
+            .controls-bar {
+                position: absolute; bottom: 0; left: 0; right: 0;
+                background: rgba(30, 41, 59, 0.95); backdrop-filter: blur(10px);
+            }
+            
+            #btnExitFS { top: 10px; right: 10px; width: 50px; height: 50px; opacity: 0.8 !important; }
+        }
+
+        .status-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            background: rgba(0,0,0,0.8); z-index: 10; pointer-events: none;
+        }
+        .loader {
+            width: 40px; height: 40px; border: 4px solid #FFF; border-bottom-color: var(--accent);
+            border-radius: 50%; animation: rotation 1s linear infinite; margin-bottom: 15px;
+        }
+        @keyframes rotation { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes pulse-red { 0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); } 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); } }
+
+        #searchPanel { display: none; margin-bottom: 10px; }
+        #searchInput { width: 100%; padding: 10px; margin-bottom: 5px; font-size: 1rem; }
+
+        .tool-btn { padding: 10px; border-radius: 6px; border:none; color: white; background: #334155; }
 
     </style>
 </head>
 <body>
 
+    <div class="modal-overlay" id="creatorModal">
+        <div class="creator-panel">
+            <h2 style="margin:0; font-size: 1.2rem; color:white;">Desenhar Forma</h2>
+            <div style="font-size: 0.8rem; color: #94a3b8;">Use o dedo para desenhar.</div>
+            
+            <div style="display: flex; gap:10px;">
+                <button class="tool-btn" id="btnClearShape" style="flex:1;">🗑️ Limpar</button>
+                <button class="tool-btn" onclick="toggleCreator(false)" style="flex:1; background: transparent; border: 1px solid var(--border);">Cancelar</button>
+            </div>
+
+            <div class="creator-canvas-wrapper">
+                <canvas id="creatorCanvas" width="400" height="400"></canvas>
+            </div>
+            
+            <input type="text" id="shapeNameInput" placeholder="Nome da forma" style="padding: 12px; background: #0f172a; border: 1px solid var(--border); color: white; border-radius: 4px; width: 100%;">
+            
+            <button class="tool-btn" id="btnSaveShape" style="background: var(--success); color:black; font-weight:bold; width: 100%;">Salvar Forma</button>
+        </div>
+    </div>
+
     <header class="header">
-        <button class="toggle-btn" id="menuBtn">
-            ☰ Opções
-            </button>
-        <div style="font-weight:bold; background: linear-gradient(to right, #c084fc, #38bdf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">GeoArt Pro</div>
+        <div class="header-left">
+            <button class="toggle-sidebar-btn" id="sidebarToggle">☰</button>
+            <h1>GeoArt Mobile</h1>
+        </div>
+        <div style="color: var(--accent); font-size: 0.8rem;">v2.0</div>
     </header>
 
-    <div class="app-container">
-        
-        <div class="sidebar" id="sidebar">
-            <h2 style="margin-top:0; color:white; font-size:1.2rem;">Configurações</h2>
-            
+    <div class="app-container" id="appGrid">
+        <aside class="sidebar">
             <div class="panel-section">
-                <h3>Fonte da Imagem</h3>
-                <button class="btn btn-block" id="btnRandom" style="background: var(--warning); color: #000; font-weight:bold; font-size:1.1rem;">🎲 Trocar Imagem (Aleatória)</button>
+                <h3>Fontes de Imagem</h3>
+                <button id="btnRandom" class="btn btn-random" style="width:100%; margin-bottom: 8px;">🎲 Aleatória</button>
+                <button id="btnToggleSearch" class="btn btn-search" style="width:100%; margin-bottom: 8px;">🔍 Pesquisar</button>
                 
-                <label class="btn btn-block">
+                <div id="searchPanel">
+                    <input type="text" id="searchInput" placeholder="Ex: Gato, Neon...">
+                    <button id="btnDoSearch" class="btn" style="background:var(--accent); color:#000; width:100%;">Buscar</button>
+                </div>
+                
+                <label class="btn btn-upload">
                     📂 Abrir da Galeria
                     <input type="file" id="fileInput" hidden accept="image/*">
                 </label>
-                
-                <div style="margin-top:10px; display:flex; gap:5px;">
-                    <input type="text" id="searchInput" placeholder="Tema (ex: neon, gato)" style="flex:1; padding:10px; border-radius:6px; border:none;">
-                    <button id="btnSearch" class="btn" style="background:var(--accent); color:black;">Ir</button>
-                </div>
             </div>
 
+            <hr style="border:0; border-top:1px solid var(--border); width: 100%;">
+            
             <div class="panel-section">
                 <h3>Estilo</h3>
-                <select id="paletteSelect" style="margin-bottom: 10px; padding: 12px;">
-                    <option value="original">🎨 Cores Originais</option>
-                    <option value="neon">🔮 Neon Cyberpunk</option>
-                    <option value="fire">🔥 Fogo Intenso</option>
-                    <option value="bw">⚫ Preto e Branco</option>
-                    <option value="matrix">💻 Matrix</option>
+                <label class="shape-option" style="margin-bottom: 8px;">
+                    <input type="checkbox" id="flowFieldCheck"> 
+                    <span>🌊 Seguir Linhas (Flow)</span>
+                </label>
+                
+                <select id="colorPaletteSelect" style="margin-bottom: 10px; width: 100%;">
+                    <option value="original">Cores: Original</option>
+                    <option value="cyberpunk">Cores: Cyberpunk</option>
+                    <option value="noir">Cores: Preto e Branco</option>
+                    <option value="fire">Cores: Fogo</option>
+                    <option value="matrix">Cores: Matrix</option>
                 </select>
-                <div class="check-item">
-                    <input type="checkbox" id="flowCheck">
-                    <span>🌊 Efeito Líquido</span>
-                </div>
             </div>
 
+            <hr style="border:0; border-top:1px solid var(--border); width: 100%;">
+            
             <div class="panel-section">
                 <h3>Formas</h3>
-                <div class="check-grid" id="shapesContainer">
-                    <label class="check-item"><input type="checkbox" value="circle" checked> Bolas</label>
-                    <label class="check-item"><input type="checkbox" value="square" checked> Quadrados</label>
-                    <label class="check-item"><input type="checkbox" value="line"> Riscos</label>
-                    <label class="check-item"><input type="checkbox" value="triangle"> Triângulos</label>
+                <div class="sidebar-shapes" id="shapesContainer">
+                    <label class="shape-option"><input type="checkbox" value="circle" checked> Bolas</label>
+                    <label class="shape-option"><input type="checkbox" value="square" checked> Cubos</label>
+                    <label class="shape-option"><input type="checkbox" value="line"> Linhas</label>
+                </div>
+                <button id="btnOpenCreator" class="btn btn-create" style="width:100%;">✏️ Desenhar Forma</button>
+            </div>
+        </aside>
+
+        <main class="workspace">
+            <div class="canvas-area" id="canvasContainer">
+                <button id="btnExitFS" style="position: absolute; display:none; z-index:999; background:red; border-radius:50%; color:white; border:none; font-size:20px;">✕</button>
+                
+                <div class="status-overlay" id="statusOverlay">
+                    <span class="loader" id="loader"></span>
+                    <div style="color:white; padding: 10px; background: #1e293b; border-radius: 8px;" id="statusText">Toque em 🎲 Aleatória</div>
+                </div>
+                <canvas id="artCanvas"></canvas>
+            </div>
+
+            <div class="controls-bar">
+                <button id="btnRecord" class="btn btn-action btn-rec">🔴</button>
+                <button id="btnDownload" class="btn btn-action btn-dl">💾</button>
+                
+                <div style="width: 1px; background: var(--border); height: 40px; margin: 0 5px;"></div>
+
+                <div class="control-group">
+                    <div style="font-size: 0.7rem; color: #ccc;">Velocidade</div>
+                    <input type="range" id="speedSlider" min="1" max="50" value="40">
+                </div>
+
+                <button id="btnDetailMode" class="btn btn-toggle active">✨ Evolução</button>
+                <button id="btnFluidMode" class="btn btn-toggle active">🌊 Transição</button>
+                
+                <div class="control-group">
+                    <div style="font-size: 0.7rem; color: #ccc;">Trocar (ms)</div>
+                    <select id="timeSelect">
+                        <option value="15000">15s</option>
+                        <option value="30000" selected>30s</option>
+                        <option value="9999999">Infinito</option>
+                    </select>
                 </div>
             </div>
-
-            <button class="btn btn-block" onclick="toggleMenu()" style="background: transparent; border: 1px solid #555; margin-top:20px;">Fechar Menu</button>
-        </div>
-
-        <div class="canvas-wrapper" id="canvasWrapper">
-            <div class="loader-overlay" id="loader">
-                <div class="spinner"></div>
-                <div style="color:white">Criando Arte...</div>
-            </div>
-            <canvas id="artCanvas"></canvas>
-        </div>
-
-        <div class="controls-bar">
-            <button id="btnRec" class="btn btn-round btn-rec">🔴</button>
-            <button id="btnSave" class="btn btn-round btn-dl">💾</button>
-            
-            <div style="width:1px; height:30px; background:var(--border); margin:0 5px;"></div>
-
-            <div class="control-group">
-                <span class="control-label">Velocidade</span>
-                <input type="range" id="speedRange" min="10" max="100" value="60">
-            </div>
-
-            <button id="btnEvol" class="btn btn-opt active">✨ Evolução</button>
-            
-            <div class="control-group">
-                <span class="control-label">Duração</span>
-                <select id="timeSelect" style="width: 90px;">
-                    <option value="15000">15 seg</option>
-                    <option value="30000" selected>30 seg</option>
-                    <option value="60000">1 min</option>
-                    <option value="90000">1:30 min</option>
-                    <option value="9999999">Infinito</option>
-                </select>
-            </div>
-        </div>
-
+        </main>
     </div>
 
     <script>
-        // CONFIG
-        const config = {
-            width: 1080, height: 1920,
-            isRunning: false,
-            shapes: ['circle', 'square'],
-            speed: 60,
-            duration: 30000,
-            evolution: true,
-            flowField: false,
-            palette: 'original',
-            startTime: 0
+        // --- CONFIGURAÇÃO INICIAL ---
+        const config = { 
+            width: 1080, height: 1920, // Resolução Vertical para Celular
+            shapes: ['circle', 'square'], 
+            abstraction: 50, paintSpeed: 40, duration: 30000, 
+            isRunning: false, startTime: 0, 
+            currentMode: 'none', currentTag: '', 
+            evolutionMode: true, fluidMode: true,
+            isLoadingNext: false, retryCount: 0, maxRetries: 5,
+            useFlowField: false, colorPalette: 'original', flowAngles: null 
         };
-
+        
+        const customShapesRegistry = {}; 
+        let mediaRecorder = null, recordedChunks = [], isRecording = false;
         const canvas = document.getElementById('artCanvas');
-        const ctx = canvas.getContext('2d', { alpha: false });
-        let sourceData = null, sW = 0, sH = 0;
-        let animationId = null;
-        let flowAngles = [];
+        const ctx = canvas.getContext('2d', { willReadFrequently: true });
+        let sourceData = null, sourceW = 0, sourceH = 0, animationFrameId = null, originalImg = null;
 
-        function init() {
-            canvas.width = config.width;
+        // --- INICIALIZAÇÃO ---
+        function init() { 
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
+            
+            // Otimização Mobile: Reduz velocidade em telas pequenas
+            if(window.innerWidth < 600) config.paintSpeed = 30;
+            
+            updateDetailBtnUI(); updateFluidBtnUI(); 
+        }
+
+        function resizeCanvas() {
+            // Ajusta o tamanho interno do canvas para alta qualidade
+            canvas.width = config.width; 
             canvas.height = config.height;
-            
-            // --- INSERÇÃO DA BOLINHA GUIA ---
-            const menuBtn = document.getElementById('menuBtn');
-            // Cria a bolinha
-            const dot = document.createElement('div');
-            dot.id = 'guideDot';
-            dot.className = 'guide-dot';
-            menuBtn.appendChild(dot);
-
-            // Logica do botão menu
-            menuBtn.onclick = () => {
-                // Remove a bolinha na primeira vez que clicar
-                const d = document.getElementById('guideDot');
-                if(d) d.remove();
-                
-                toggleMenu();
-            };
-
-            // Eventos normais
-            document.getElementById('btnRandom').onclick = () => loadUrl(`https://picsum.photos/1080/1920?random=${Date.now()}`);
-            
-            document.getElementById('btnSearch').onclick = () => {
-                const term = document.getElementById('searchInput').value;
-                if(term) loadUrl(`https://loremflickr.com/1080/1920/${encodeURIComponent(term)}?lock=${Date.now()}`);
-            };
-
-            document.getElementById('fileInput').onchange = (e) => {
-                const f = e.target.files[0];
-                if(f) {
-                    const r = new FileReader();
-                    r.onload = (evt) => loadImg(evt.target.result);
-                    r.readAsDataURL(f);
-                }
-            };
-
-            document.getElementById('speedRange').oninput = (e) => config.speed = parseInt(e.target.value);
-            document.getElementById('timeSelect').onchange = (e) => config.duration = parseInt(e.target.value);
-            document.getElementById('btnEvol').onclick = (e) => { config.evolution = !config.evolution; e.target.classList.toggle('active'); };
-            document.getElementById('paletteSelect').onchange = (e) => config.palette = e.target.value;
-            document.getElementById('flowCheck').onchange = (e) => config.flowField = e.target.checked;
-            
-            const shapeChecks = document.querySelectorAll('#shapesContainer input');
-            shapeChecks.forEach(ch => ch.onchange = () => {
-                config.shapes = Array.from(shapeChecks).filter(c => c.checked).map(c => c.value);
-                if(config.shapes.length === 0) config.shapes = ['circle'];
-            });
-
-            document.getElementById('btnSave').onclick = downloadImage;
-            document.getElementById('btnRec').onclick = toggleRecord;
-
-            // Inicia com uma imagem padrão
-            loadUrl(`https://picsum.photos/1080/1920?random=start`);
         }
 
-        function toggleMenu() {
-            const sb = document.getElementById('sidebar');
-            sb.classList.toggle('open');
+        // --- SISTEMA DE IMAGEM ---
+        function getSearchURL(keyword) {
+            // Usa LoremFlickr com resolução vertical
+            return `https://loremflickr.com/1080/1920/${encodeURIComponent(keyword)}?lock=${Date.now()}`;
         }
 
-        function toggleLoader(show) {
-            document.getElementById('loader').classList.toggle('show', show);
-        }
-
-        // CARREGAMENTO
-        function loadUrl(url) {
-            toggleLoader(true);
-            // Se o menu estiver aberto, fecha ele
-            if(document.getElementById('sidebar').classList.contains('open')) toggleMenu();
+        function searchImage(keyword) { 
+            config.currentMode = 'search'; config.currentTag = keyword; config.retryCount = 0;
+            // Fecha o menu no mobile após pesquisar
+            if(window.innerWidth < 900) toggleSidebar();
             
-            const img = new Image();
-            img.crossOrigin = "Anonymous";
-            img.onload = () => loadImgObj(img);
-            img.onerror = () => { alert("Erro na imagem."); toggleLoader(false); };
-            img.src = url;
+            const url = getSearchURL(keyword);
+            if(config.isRunning && config.fluidMode) loadSilentImage(url);
+            else loadImage(url); 
         }
 
-        function loadImg(src) {
-            toggleLoader(true);
-            if(document.getElementById('sidebar').classList.contains('open')) toggleMenu();
-            const img = new Image();
-            img.onload = () => loadImgObj(img);
-            img.src = src;
+        function setLoading(isLoading, text) {
+            const el = document.getElementById('statusOverlay');
+            if(isLoading) { 
+                el.style.display = 'flex'; 
+                document.getElementById('statusText').innerText = text; 
+                document.getElementById('loader').style.display = 'block'; 
+            } else { el.style.display = 'none'; }
         }
 
-        function loadImgObj(img) {
-            sW = 540; sH = 960; 
-            const oc = document.createElement('canvas');
-            oc.width = sW; oc.height = sH;
-            const octx = oc.getContext('2d');
-            
-            const ratio = Math.max(sW / img.width, sH / img.height);
-            const cw = img.width * ratio;
-            const ch = img.height * ratio;
-            octx.drawImage(img, (sW - cw)/2, (sH - ch)/2, cw, ch);
-            
-            sourceData = octx.getImageData(0, 0, sW, sH).data;
+        function loadImage(baseUrl) {
+            setLoading(true, "Baixando imagem...");
+            config.isRunning = false; 
+            if(animationFrameId) cancelAnimationFrame(animationFrameId);
+            const img = new Image(); img.crossOrigin = "Anonymous"; 
+            img.onload = () => { originalImg = img; startArt(true); config.retryCount = 0; setLoading(false); };
+            img.onerror = () => { handleImageError(true); };
+            img.src = baseUrl;
+        }
 
-            flowAngles = new Float32Array(sW * sH);
-            for(let i=0; i<sW*sH; i++) {
-                const r = sourceData[i*4];
-                flowAngles[i] = (r / 255) * Math.PI * 2;
+        function loadSilentImage(baseUrl) {
+            if(config.isLoadingNext) return;
+            config.isLoadingNext = true;
+            const img = new Image(); img.crossOrigin = "Anonymous";
+            img.onload = () => { originalImg = img; startArt(false); config.retryCount = 0; config.isLoadingNext = false; };
+            img.onerror = () => { handleImageError(false); };
+            img.src = baseUrl;
+        }
+
+        function handleImageError(isExplicit) {
+            config.retryCount++;
+            if (config.retryCount <= config.maxRetries) {
+                const nextUrl = getSearchURL(config.currentTag || 'abstract');
+                setTimeout(() => { isExplicit ? loadImage(nextUrl) : loadSilentImage(nextUrl); }, 1000);
+            } else {
+                setLoading(true, "Erro na rede. Tente outro tema.");
+                config.retryCount = 0;
             }
+        }
 
-            ctx.fillStyle = config.palette === 'original' ? '#111' : '#000';
-            ctx.fillRect(0, 0, config.width, config.height);
+        function triggerNextImage() { 
+            config.retryCount = 0;
+            if (config.currentMode === 'search') loadSilentImage(getSearchURL(config.currentTag));
+            else loadSilentImage(`https://picsum.photos/1080/1920?random=${Date.now()}`);
+        }
+
+        // --- CORE DA ARTE ---
+        function startArt(clearCanvas) {
+            const analysisW = config.width / 2; // Otimização: analisa metade da resolução
+            const analysisH = config.height / 2;
+            sourceW = analysisW; sourceH = analysisH;
+
+            const offCanvas = document.createElement('canvas'); 
+            offCanvas.width = analysisW; offCanvas.height = analysisH;
+            const offCtx = offCanvas.getContext('2d'); 
+            
+            // Centraliza e corta a imagem (Cover)
+            const r = Math.max(analysisW / originalImg.width, analysisH / originalImg.height);
+            offCtx.drawImage(originalImg, (analysisW - originalImg.width * r) / 2, (analysisH - originalImg.height * r) / 2, originalImg.width * r, originalImg.height * r);
+            
+            try { 
+                const imgData = offCtx.getImageData(0, 0, analysisW, analysisH);
+                sourceData = imgData.data; 
+                
+                // Flow Field Calculation (Otimizado)
+                if(config.useFlowField) {
+                    config.flowAngles = new Float32Array(analysisW * analysisH);
+                    for(let y = 1; y < analysisH - 1; y+=2) { // Pula pixels para performance
+                        for(let x = 1; x < analysisW - 1; x+=2) {
+                            const idx = (y * analysisW + x) * 4;
+                            const grey = (sourceData[idx]+sourceData[idx+1]+sourceData[idx+2])/3;
+                            // Simplificação do cálculo de ângulo para mobile
+                            config.flowAngles[y * analysisW + x] = (grey/255) * Math.PI * 2;
+                        }
+                    }
+                }
+            } catch(e) { console.error(e); handleImageError(true); return; }
+
+            if(clearCanvas || !config.fluidMode) { 
+                ctx.fillStyle = config.colorPalette === 'original' ? "#111" : "#000";
+                ctx.fillRect(0, 0, config.width, config.height); 
+            }
             
             config.startTime = Date.now();
-            config.isRunning = true;
-            toggleLoader(false);
-            if(animationId) cancelAnimationFrame(animationId);
-            loop();
+            config.isRunning = true; 
+            if(!animationFrameId) loop();
         }
 
-        function loop() {
-            if(!config.isRunning) return;
-
-            const elapsed = Date.now() - config.startTime;
-            if(config.duration < 9000000 && elapsed > config.duration) {
-                config.isRunning = false; return;
-            }
-
-            const speedFactor = config.speed / 10; 
-            const loops = Math.floor(speedFactor * 30); 
-
-            let size = 30;
-            if(config.evolution) {
-                const progress = Math.min(elapsed / config.duration, 1);
-                size = Math.max(150 * (1 - progress) + (Math.random()*10), 6); 
-            } else {
-                size = 20 + Math.random() * 20;
-            }
-
-            for(let i=0; i<loops; i++) {
-                const rx = Math.floor(Math.random() * sW);
-                const ry = Math.floor(Math.random() * sH);
-                const idx = (ry * sW + rx) * 4;
-
-                const r = sourceData[idx]; const g = sourceData[idx+1]; const b = sourceData[idx+2];
-                const x = (rx / sW) * config.width;
-                const y = (ry / sH) * config.height;
-
-                const color = getColor(r, g, b);
-                ctx.fillStyle = color; ctx.strokeStyle = color;
-
-                const angle = config.flowField ? flowAngles[ry*sW+rx] : Math.random() * 6.28;
-                const brightness = (r+g+b)/3;
-                const finalSize = size * (0.6 + (brightness/255));
-
-                drawShape(x, y, finalSize, config.shapes[Math.floor(Math.random()*config.shapes.length)], angle);
-            }
-            animationId = requestAnimationFrame(loop);
+        function getOptimalSpeed(size) {
+            // Reduz velocidade se o tamanho for pequeno para economizar bateria
+            let loops = (config.paintSpeed / 10) * Math.pow(160 / Math.max(size, 1), 1.25);
+            if (window.innerWidth < 600) loops *= 0.6; // 40% menos partículas no mobile
+            return Math.floor(Math.max(loops, 2)); 
         }
 
-        function drawShape(x, y, size, type, angle) {
-            ctx.beginPath();
-            if(type === 'circle') { ctx.arc(x, y, size/2, 0, Math.PI*2); ctx.fill(); } 
-            else if(type === 'square') { ctx.save(); ctx.translate(x,y); ctx.rotate(angle); ctx.fillRect(-size/2, -size/2, size, size); ctx.restore(); }
-            else if(type === 'line') { ctx.lineWidth = Math.max(2, size/4); ctx.moveTo(x - Math.cos(angle)*size, y - Math.sin(angle)*size); ctx.lineTo(x + Math.cos(angle)*size, y + Math.sin(angle)*size); ctx.stroke(); }
-            else if(type === 'triangle') { ctx.save(); ctx.translate(x,y); ctx.rotate(angle); ctx.moveTo(0, -size/2); ctx.lineTo(size/2, size/2); ctx.lineTo(-size/2, size/2); ctx.closePath(); ctx.fill(); ctx.restore(); }
-        }
-
-        function getColor(r, g, b) {
-            if(config.palette === 'original') return `rgb(${r},${g},${b})`;
-            const lum = (r*0.299 + g*0.587 + b*0.114) / 255;
-            if(config.palette === 'bw') { const v = lum * 255; return `rgb(${v},${v},${v})`; }
-            if(config.palette === 'neon') return `hsl(${lum * 300}, 100%, 60%)`;
-            if(config.palette === 'fire') return lum < 0.5 ? `rgb(${lum*510},0,0)` : `rgb(255,${(lum-0.5)*510},0)`;
-            if(config.palette === 'matrix') return `rgb(0, ${Math.floor(lum*255)}, 0)`;
+        function getPaletteColor(r, g, b) {
+            if (config.colorPalette === 'original') return `rgb(${r},${g},${b})`;
+            const lum = (r * 0.299 + g * 0.587 + b * 0.114) / 255; 
+            
+            if (config.colorPalette === 'cyberpunk') {
+                return `rgb(${Math.floor(40 + lum * 200)}, ${Math.floor(lum * 242)}, ${Math.floor(79 + lum * 176)})`;
+            }
+            if (config.colorPalette === 'noir') { const v = lum*255; return `rgb(${v},${v},${v})`; }
+            if (config.colorPalette === 'fire') { return lum < 0.5 ? `rgb(${lum*510},0,0)` : `rgb(255,${(lum-0.5)*510},0)`; }
+            if (config.colorPalette === 'matrix') { return `rgb(0, ${Math.floor(lum * 255)}, 0)`; }
             return `rgb(${r},${g},${b})`;
         }
 
-        function downloadImage() {
-            const a = document.createElement('a'); a.download = 'GeoArt_' + Date.now() + '.png'; a.href = canvas.toDataURL(); a.click();
+        function loop() {
+            if(!config.isRunning || !sourceData) { animationFrameId = null; return; }
+
+            const elapsed = Date.now() - config.startTime;
+            const duration = parseInt(config.duration);
+            
+            if(duration < 9000000 && elapsed > duration) {
+                if(!config.isLoadingNext && config.currentMode !== 'upload') triggerNextImage();
+            }
+
+            // Lógica de Evolução do Tamanho
+            let currentBaseSize = 20;
+            if (config.evolutionMode) {
+                if (config.fluidMode && elapsed < 3500) { // Transição suave
+                     const t = elapsed / 3000;
+                     currentBaseSize = elapsed < 3000 ? 5 + (175 * (t*t)) : 180;
+                } else {
+                    const progress = Math.min(elapsed / duration, 1.0);
+                    const shrinkLimit = 0.5; // Começa a diminuir na metade
+                    let sizeProgress = progress / shrinkLimit; 
+                    if (sizeProgress > 1) sizeProgress = 1;
+                    currentBaseSize = 40 * (4.0 * (1 - sizeProgress) + 0.1 * sizeProgress);
+                }
+            } else {
+                currentBaseSize = 30; // Tamanho fixo se evolução desligada
+            }
+
+            let loopsThisFrame = getOptimalSpeed(currentBaseSize);
+            let shapesToUse = config.shapes.length > 0 ? config.shapes : ['circle'];
+            
+            for(let i=0; i < loopsThisFrame; i++) {
+                // Pega ponto aleatório na matriz de origem (metade da resolução)
+                const ax = Math.floor(Math.random() * sourceW);
+                const ay = Math.floor(Math.random() * sourceH);
+                
+                const idx = (ay * sourceW + ax) * 4;
+                if (!sourceData[idx+3]) continue; 
+
+                // Mapeia para o canvas de destino (resolução total)
+                const x = (ax / sourceW) * config.width;
+                const y = (ay / sourceH) * config.height;
+
+                const brightness = (sourceData[idx] + sourceData[idx+1] + sourceData[idx+2]) / 3;
+                const finalSize = currentBaseSize * (0.5 + (brightness / 255)) * (Math.random() + 0.5);
+                
+                const colorStr = getPaletteColor(sourceData[idx], sourceData[idx+1], sourceData[idx+2]);
+                ctx.fillStyle = colorStr; ctx.strokeStyle = colorStr;
+
+                let angle = config.useFlowField ? (config.flowAngles[ay*sourceW+ax] || 0) : Math.random() * 6.28;
+                
+                drawShape(x, y, finalSize, shapesToUse[Math.floor(Math.random() * shapesToUse.length)], angle);
+            }
+            animationFrameId = requestAnimationFrame(loop);
         }
 
-        let mediaRecorder = null; let chunks = [];
-        function toggleRecord() {
-            const btn = document.getElementById('btnRec');
-            if(mediaRecorder && mediaRecorder.state === 'recording') { mediaRecorder.stop(); btn.classList.remove('recording'); } 
-            else {
-                try {
-                    const stream = canvas.captureStream(30); mediaRecorder = new MediaRecorder(stream); chunks = [];
-                    mediaRecorder.ondataavailable = e => { if(e.data.size > 0) chunks.push(e.data); };
-                    mediaRecorder.onstop = () => { const b = new Blob(chunks, {type:'video/webm'}); const u = URL.createObjectURL(b); const a = document.createElement('a'); a.href=u; a.download='GeoVideo.webm'; a.click(); };
-                    mediaRecorder.start(); btn.classList.add('recording');
-                } catch(e) { alert("Gravação não suportada."); }
+        function drawShape(x, y, size, s, angle) {
+            // Custom Shapes
+            if (customShapesRegistry[s]) {
+                const points = customShapesRegistry[s];
+                ctx.save(); ctx.translate(x, y); ctx.rotate(angle); 
+                ctx.beginPath();
+                ctx.moveTo(points[0].x * size, points[0].y * size);
+                for (let i = 1; i < points.length; i++) ctx.lineTo(points[i].x * size, points[i].y * size);
+                ctx.closePath(); ctx.fill(); ctx.restore();
+                return;
+            }
+            
+            ctx.beginPath();
+            if(s === 'circle') { ctx.arc(x, y, size/2, 0, Math.PI*2); ctx.fill(); }
+            else if(s === 'square') { 
+                ctx.save(); ctx.translate(x, y); ctx.rotate(angle); 
+                ctx.fillRect(-size/2, -size/2, size, size); ctx.restore(); 
+            }
+            else if(s === 'line') { 
+                ctx.lineWidth = Math.max(1, size/5); 
+                ctx.moveTo(x-Math.cos(angle)*size, y-Math.sin(angle)*size); 
+                ctx.lineTo(x+Math.cos(angle)*size, y+Math.sin(angle)*size); 
+                ctx.stroke(); 
             }
         }
 
+        // --- INTERAÇÃO E CONTROLES ---
+        function toggleSidebar() {
+            document.getElementById('appGrid').classList.toggle('menu-open');
+            const btn = document.getElementById('sidebarToggle');
+            btn.innerText = document.getElementById('appGrid').classList.contains('menu-open') ? '✕' : '☰';
+        }
+        document.getElementById('sidebarToggle').onclick = toggleSidebar;
+
+        // Listeners
+        document.getElementById('btnDetailMode').onclick = () => { config.evolutionMode = !config.evolutionMode; updateDetailBtnUI(); };
+        document.getElementById('btnFluidMode').onclick = () => { config.fluidMode = !config.fluidMode; updateFluidBtnUI(); };
+        
+        function updateDetailBtnUI() { document.getElementById('btnDetailMode').classList.toggle('active', config.evolutionMode); }
+        function updateFluidBtnUI() { document.getElementById('btnFluidMode').classList.toggle('active', config.fluidMode); }
+
+        document.getElementById('timeSelect').onchange = (e) => config.duration = parseInt(e.target.value);
+        document.getElementById('speedSlider').oninput = (e) => config.paintSpeed = parseInt(e.target.value);
+        document.getElementById('flowFieldCheck').onchange = (e) => config.useFlowField = e.target.checked;
+        document.getElementById('colorPaletteSelect').onchange = (e) => config.colorPalette = e.target.value;
+
+        function updateShapesList() { config.shapes = Array.from(document.querySelectorAll('#shapesContainer input:checked')).map(c => c.value); }
+        document.querySelectorAll('#shapesContainer input').forEach(cb => { cb.onchange = updateShapesList; });
+
+        document.getElementById('btnDownload').onclick = () => { const a = document.createElement('a'); a.download = 'GeoArt_' + Date.now() + '.png'; a.href = canvas.toDataURL(); a.click(); };
+        document.getElementById('btnRandom').onclick = () => { config.currentMode = 'random'; 
+            if(window.innerWidth < 900) toggleSidebar();
+            if(config.isRunning && config.fluidMode) loadSilentImage(`https://picsum.photos/1080/1920?random=${Date.now()}`);
+            else loadImage(`https://picsum.photos/1080/1920?random=${Date.now()}`); 
+        };
+
+        // Pesquisa
+        const p = document.getElementById('searchPanel');
+        document.getElementById('btnToggleSearch').onclick = () => { p.style.display = p.style.display === 'block' ? 'none' : 'block'; };
+        document.getElementById('btnDoSearch').onclick = () => { const val = document.getElementById('searchInput').value; if(val) searchImage(val); };
+        
+        // Upload
+        document.getElementById('fileInput').onchange = (e) => { 
+            const f = e.target.files[0]; 
+            if(f) { 
+                if(window.innerWidth < 900) toggleSidebar();
+                config.currentMode = 'upload'; setLoading(true, "Lendo arquivo..."); 
+                const r = new FileReader(); r.onload = (evt) => loadImage(evt.target.result); r.readAsDataURL(f); 
+            } 
+        };
+
+        // Gravação
+        document.getElementById('btnRecord').onclick = () => { isRecording ? stopRecording() : startRecording(); };
+        function startRecording() {
+            try {
+                const stream = canvas.captureStream(30);
+                mediaRecorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
+                recordedChunks = [];
+                mediaRecorder.ondataavailable = (e) => { if (e.data.size > 0) recordedChunks.push(e.data); };
+                mediaRecorder.onstop = () => {
+                    const blob = new Blob(recordedChunks, { type: 'video/webm' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a'); a.href = url; a.download = `GeoVideo_${Date.now()}.webm`; a.click();
+                };
+                mediaRecorder.start(); isRecording = true;
+                const btn = document.getElementById('btnRecord'); btn.classList.add('recording'); btn.innerHTML = '⬛';
+            } catch(e) { alert("Gravação não suportada neste dispositivo."); }
+        }
+        function stopRecording() { if(mediaRecorder) mediaRecorder.stop(); isRecording = false; const btn = document.getElementById('btnRecord'); btn.classList.remove('recording'); btn.innerHTML = '🔴'; }
+
+        // --- MÓDULO CRIADOR (TOUCH ENABLED) ---
+        const creatorModal = document.getElementById('creatorModal');
+        const creatorCanvas = document.getElementById('creatorCanvas');
+        const cCtx = creatorCanvas.getContext('2d');
+        let isDrawing = false, drawnPoints = []; 
+
+        function toggleCreator(show) {
+            creatorModal.classList.toggle('active', show);
+            if(window.innerWidth < 900 && show) toggleSidebar(); // Fecha menu ao abrir criador
+            if(show) { cCtx.clearRect(0,0,400,400); drawnPoints = []; }
+        }
+        document.getElementById('btnOpenCreator').onclick = () => toggleCreator(true);
+        document.getElementById('btnClearShape').onclick = () => { cCtx.clearRect(0,0,400,400); drawnPoints = []; };
+
+        function getPointerPos(e) {
+            const rect = creatorCanvas.getBoundingClientRect();
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            return {
+                x: (clientX - rect.left) * (creatorCanvas.width / rect.width),
+                y: (clientY - rect.top) * (creatorCanvas.height / rect.height)
+            };
+        }
+
+        function startDraw(e) {
+            e.preventDefault(); isDrawing = true; drawnPoints = [];
+            const pt = getPointerPos(e); drawnPoints.push(pt);
+            cCtx.clearRect(0,0,400,400); cCtx.beginPath(); cCtx.moveTo(pt.x, pt.y);
+        }
+        function moveDraw(e) {
+            if(!isDrawing) return; e.preventDefault();
+            const pt = getPointerPos(e);
+            drawnPoints.push(pt); cCtx.lineTo(pt.x, pt.y);
+            cCtx.strokeStyle = "#38bdf8"; cCtx.lineWidth = 3; cCtx.stroke();
+        }
+        function endDraw(e) {
+            if(!isDrawing) return; isDrawing = false; e.preventDefault();
+            cCtx.closePath(); cCtx.fillStyle = "rgba(56, 189, 248, 0.2)"; cCtx.fill();
+        }
+
+        // Eventos de Mouse e Touch unificados
+        creatorCanvas.addEventListener('mousedown', startDraw);
+        creatorCanvas.addEventListener('touchstart', startDraw, {passive: false});
+        creatorCanvas.addEventListener('mousemove', moveDraw);
+        creatorCanvas.addEventListener('touchmove', moveDraw, {passive: false});
+        creatorCanvas.addEventListener('mouseup', endDraw);
+        creatorCanvas.addEventListener('touchend', endDraw);
+
+        document.getElementById('btnSaveShape').onclick = () => {
+            if(drawnPoints.length < 3) return toggleCreator(false);
+            
+            // Normalizar forma (centralizar e escalar)
+            let minX=1000, maxX=0, minY=1000, maxY=0;
+            drawnPoints.forEach(p => {
+                if(p.x < minX) minX = p.x; if(p.x > maxX) maxX = p.x;
+                if(p.y < minY) minY = p.y; if(p.y > maxY) maxY = p.y;
+            });
+            const w = maxX - minX, h = maxY - minY;
+            const cx = minX + w/2, cy = minY + h/2;
+            const scale = Math.max(w, h) || 1;
+
+            const normalized = drawnPoints.map(p => ({ x: (p.x - cx)/scale, y: (p.y - cy)/scale }));
+            const id = 'c_' + Date.now();
+            customShapesRegistry[id] = normalized;
+
+            // Adicionar à lista
+            const div = document.createElement('div'); div.className = 'custom-shape-wrapper';
+            div.innerHTML = `<label class="shape-option"><input type="checkbox" value="${id}" checked> ${document.getElementById('shapeNameInput').value || 'Forma'}</label>`;
+            div.querySelector('input').onchange = updateShapesList;
+            
+            document.getElementById('shapesContainer').appendChild(div);
+            updateShapesList();
+            toggleCreator(false);
+        };
+
+        // Inicia
         init();
     </script>
 </body>
