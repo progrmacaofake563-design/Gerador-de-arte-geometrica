@@ -36,655 +36,405 @@
             align-items: center;
             justify-content: space-between;
             padding: 0 20px;
-            background: rgba(15, 23, 42, 0.95);
+            background: var(--panel);
             border-bottom: 1px solid var(--border);
-            flex-shrink: 0;
-            z-index: 50;
-        }
-        .header-left { display: flex; align-items: center; gap: 15px; }
-        .toggle-sidebar-btn {
-            background: transparent; border: 1px solid var(--border); 
-            color: var(--text); border-radius: 4px; cursor: pointer;
-            padding: 5px 10px; font-size: 1.2rem; transition: 0.2s;
-        }
-        .toggle-sidebar-btn:hover { background: var(--border); }
-
-        h1 { 
-            font-size: 1.2rem; margin: 0; 
-            background: linear-gradient(to right, #c084fc, #38bdf8); 
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent; 
+            z-index: 10;
         }
 
-        .app-container {
-            display: grid;
-            grid-template-columns: 280px 1fr;
-            height: calc(100vh - 50px);
-            width: 100%;
-            transition: grid-template-columns 0.3s ease;
-        }
-        
-        .app-container.sidebar-closed {
-            grid-template-columns: 0px 1fr;
+        .logo { font-weight: bold; font-size: 1.2rem; color: var(--accent); display: flex; align-items: center; gap: 10px; }
+        .logo span { background: var(--primary); color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.8rem; }
+
+        .main-area {
+            flex: 1;
+            display: flex;
+            position: relative;
+            overflow: hidden;
         }
 
+        /* SIDEBAR (Esquerda) */
         .sidebar {
+            width: 260px;
             background: var(--panel);
             border-right: 1px solid var(--border);
-            padding: 15px;
-            overflow-y: auto;
             display: flex;
             flex-direction: column;
+            padding: 15px;
             gap: 15px;
-            min-width: 280px; 
-            transform: translateX(0);
-            transition: transform 0.3s ease;
+            z-index: 5;
+            overflow-y: auto;
         }
 
-        .app-container.sidebar-closed .sidebar {
-            transform: translateX(-100%);
+        .control-group {
+            background: rgba(0,0,0,0.2);
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
         }
-        
-        .panel-section h3 { margin: 0 0 10px 0; font-size: 0.75rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; }
 
-        .sidebar-shapes {
+        .control-title {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            color: #94a3b8;
+            margin-bottom: 10px;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        /* Inputs Deslizantes */
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            background: #475569;
+            border-radius: 3px;
+            outline: none;
+            -webkit-appearance: none;
+            margin: 10px 0;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px; height: 16px;
+            background: var(--accent);
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid white;
+        }
+
+        /* Botões de Ferramentas */
+        .tool-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 8px;
         }
-        
-        .shape-option {
+        .tool-btn {
             background: #334155;
+            border: none;
+            color: white;
             padding: 8px;
             border-radius: 6px;
-            font-size: 0.8rem;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+        .tool-btn:hover { background: #475569; }
+        .tool-btn.active { background: var(--primary); }
+
+        /* Lista de Pincéis */
+        .brush-list {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .brush-item {
+            display: flex;
+            align-items: center;
+            padding: 8px;
+            background: #334155;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            border: 1px solid transparent;
+        }
+        .brush-item:hover { border-color: var(--accent); }
+        .brush-item.active { background: var(--accent); color: var(--dark); font-weight: bold; }
+        
+        /* Formas Customizadas */
+        #shapesContainer {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            margin-top: 10px;
+        }
+        .custom-shape-wrapper {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #334155;
+            padding: 5px 10px;
+            border-radius: 4px;
+            border: 1px solid transparent;
+        }
+        .custom-shape-label {
             display: flex;
             align-items: center;
             gap: 8px;
             cursor: pointer;
-            transition: background 0.2s;
-            border: 1px solid transparent;
-        }
-        .shape-option:hover { background: #475569; }
-        .shape-option input { margin: 0; accent-color: var(--accent); cursor: pointer; }
-
-        .custom-shape-wrapper {
-            background: rgba(56, 189, 248, 0.1); 
-            border: 1px solid var(--accent);
-            border-radius: 6px;
-            display: flex;
-            align-items: center;
-            overflow: hidden;
-            transition: 0.2s;
-        }
-        .custom-shape-wrapper:hover { background: rgba(56, 189, 248, 0.2); }
-        .custom-shape-label { flex: 1; padding: 8px; font-size: 0.8rem; color: #bae6fd; display: flex; align-items: center; gap: 8px; cursor: pointer; }
-        .custom-shape-label input { accent-color: var(--accent); margin: 0; }
-        .btn-delete-shape {
-            background: transparent; border: none; border-left: 1px solid rgba(56, 189, 248, 0.3);
-            color: var(--accent); cursor: pointer; padding: 0 8px; height: 100%;
-            display: flex; align-items: center; justify-content: center; font-size: 1rem; transition: 0.2s;
-        }
-        .btn-delete-shape:hover { background: var(--accent); color: #000; }
-
-        .workspace {
-            display: flex;
-            flex-direction: column;
-            padding: 15px;
-            gap: 15px;
-            background: #020617;
-            height: 100%;
-            overflow: hidden;
-            position: relative;
-        }
-
-        .canvas-area {
+            font-size: 0.9rem;
             flex: 1;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+        }
+        .btn-delete-shape {
+            background: none; border: none; cursor: pointer; font-size: 1rem; opacity: 0.6;
+        }
+        .btn-delete-shape:hover { opacity: 1; transform: scale(1.1); }
+
+        /* CANVAS */
+        #canvas-wrapper {
+            flex: 1;
+            background: black;
             position: relative;
-            min-height: 0;
-            background: #000;
-            border-radius: 12px;
-            border: 1px dashed var(--border);
-            transition: all 0.3s ease;
-        }
-
-        .canvas-area:fullscreen {
-            border: none; border-radius: 0; width: 100vw; height: 100vh;
-            background: #000; display: flex; align-items: center; justify-content: center;
-        }
-
-        #btnExitFS {
-            position: fixed; top: 20px; right: 20px; width: 40px; height: 40px;
-            border-radius: 50%; background: rgba(239, 68, 68, 0.9); color: white;
-            border: 2px solid rgba(255,255,255,0.2); font-size: 1.2rem; font-weight: bold;
-            cursor: pointer; z-index: 9999; opacity: 0; 
-            transition: opacity 0.3s ease, transform 0.2s;
-            display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 0 15px rgba(239, 68, 68, 0.5);
-        }
-        #btnExitFS:hover { opacity: 1; transform: scale(1.1); }
-        .canvas-area:not(:fullscreen) #btnExitFS { display: none !important; }
-
-        canvas {
-            max-width: 100%; max-height: 100%; aspect-ratio: 16/9;
-            object-fit: contain; box-shadow: 0 0 40px rgba(0,0,0,0.6);
-        }
-
-        .controls-bar {
-            height: auto;
-            background: var(--panel);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 12px 20px;
-            display: grid;
-            grid-template-columns: 1fr auto auto 1fr 1fr auto auto;
-            gap: 15px;
+            cursor: crosshair;
+            display: flex;
             align-items: center;
-            flex-shrink: 0;
-            margin-bottom: 60px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+            justify-content: center;
+        }
+        canvas { 
+            box-shadow: 0 0 50px rgba(0,0,0,0.5);
         }
 
-        .btn {
-            width: 100%; padding: 10px; border: none; border-radius: 6px;
-            font-weight: 600; cursor: pointer; transition: 0.2s; font-size: 0.85rem;
-            display: flex; align-items: center; justify-content: center; gap: 8px; color: white;
+        /* EDITOR DE FORMAS (Modal) */
+        .shape-creator {
+            position: absolute;
+            top: 20px; left: 20px; right: 20px; bottom: 20px;
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(10px);
+            z-index: 100;
+            display: none; /* Escondido por padrão */
+            flex-direction: column;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            padding: 20px;
         }
-        .btn:hover { filter: brightness(1.15); transform: translateY(-1px); }
-        .btn:disabled { filter: grayscale(1); opacity: 0.5; cursor: not-allowed; }
+        .shape-creator.open { display: flex; }
         
-        .btn-search { background: linear-gradient(135deg, #0ea5e9, #6366f1); }
-        .btn-random { background: #f59e0b; color: #fff; } 
-        .btn-upload { background: #334155; }
-        .btn-create { background: var(--accent); color:black; margin-top: 10px; } 
-        .btn-action { background: #334155; height: 100%; font-size: 1.2rem; width: 45px; }
-        .btn-dl { background: #10b981; }
-        .btn-rec { background: #ef4444; color: white; }
-        .btn-rec.recording { animation: pulse-red 1.5s infinite; background: #991b1b; }
-        .btn-fs { background: #6366f1; }
-        
-        .btn-toggle { background: #334155; color: #cbd5e1; border: 1px solid var(--border); }
-        .btn-toggle.active { background: var(--success); color: #000; border-color: var(--success); box-shadow: 0 0 10px rgba(34, 197, 94, 0.4); }
-        
-        .btn-trend { background: rgba(255,255,255,0.03); color: #cbd5e1; border: 1px solid var(--border); text-align: left; padding: 8px; font-size: 0.8rem; display: flex; justify-content: space-between; }
-        .btn-trend:hover { border-color: var(--accent); background: rgba(255,255,255,0.08); }
+        .creator-canvas-area {
+            flex: 1;
+            background: #1e293b;
+            border: 2px dashed #475569;
+            border-radius: 8px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        #creatorCanvas { background: transparent; cursor: crosshair; }
 
-        .control-group { display: flex; flex-direction: column; gap: 4px; transition: opacity 0.3s; }
-        .control-group.disabled { opacity: 0.3; pointer-events: none; filter: grayscale(1); }
-        .control-label { font-size: 0.75rem; color: #94a3b8; display: flex; justify-content: space-between; }
-        input[type=range] { width: 100%; accent-color: var(--primary); height: 4px; cursor: pointer; }
-        select { background: #0f172a; border: 1px solid var(--border); color: white; padding: 4px; border-radius: 4px; width: 100%; font-size: 0.85rem;}
+        .creator-controls {
+            height: 60px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-top: 15px;
+        }
 
-        .status-overlay {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            background: rgba(0,0,0,0.9); z-index: 10;
+        /* Botão para abrir o criador */
+        .btn-new-shape {
+            width: 100%;
+            padding: 10px;
+            background: var(--success);
+            color: black;
+            font-weight: bold;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-top: 10px;
         }
-        .status-text { background: #1e293b; padding: 15px 25px; border-radius: 8px; color: #f1f5f9; border: 1px solid var(--border); text-align: center; }
-        .loader {
-            width: 40px; height: 40px; border: 4px solid #FFF; border-bottom-color: var(--accent);
-            border-radius: 50%; animation: rotation 1s linear infinite; margin-bottom: 15px;
-        }
-        @keyframes rotation { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        @keyframes pulse-red { 0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); } 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); } }
-
-        #searchPanel { display: none; background: #0f172a; padding: 10px; border-radius: 6px; border: 1px solid var(--accent); margin-bottom: 5px; }
-        #searchInput { width: 100%; background: transparent; border: 1px solid var(--border); color: white; padding: 8px; margin-bottom: 8px; font-size: 0.9rem;}
-
-        .modal-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.85); backdrop-filter: blur(5px);
-            z-index: 1000; display: none; align-items: center; justify-content: center;
-        }
-        .modal-overlay.active { display: flex; }
-        
-        .creator-panel {
-            background: var(--panel); border: 1px solid var(--border);
-            padding: 20px; border-radius: 12px; 
-            width: auto; max-width: 95vw;
-            display: flex; flex-direction: column; gap: 15px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.8);
-        }
-        
-        .creator-canvas-wrapper {
-            width: 400px; height: 400px; 
-            background-color: #0f172a;
-            background-image: linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px);
-            background-size: 40px 40px;
-            border: 2px solid var(--border); border-radius: 8px;
-            cursor: crosshair; overflow: hidden;
-            display: block; position: relative;
-        }
-        #creatorCanvas { display: block; width: 100%; height: 100%; }
-
-        .creator-tools { display: flex; gap: 10px; }
-        .tool-btn { flex: 1; padding: 8px; background: #334155; border: none; color: white; border-radius: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px;}
-        .tool-btn:hover { background: #475569; }
-        .tool-btn-imp { background: var(--accent); color: black; font-weight: 500; }
-        
-        @media (max-width: 900px) {
-            .app-container { grid-template-columns: 1fr; }
-            .sidebar { position: fixed; left: 0; top: 50px; bottom: 0; z-index: 100; box-shadow: 5px 0 15px rgba(0,0,0,0.5); }
-            .controls-bar { grid-template-columns: 1fr 1fr; gap: 10px; height: auto; margin-bottom: 20px;}
-        }
+        .btn-new-shape:hover { filter: brightness(1.1); }
 
     </style>
 </head>
 <body>
 
-    <div class="modal-overlay" id="creatorModal">
-        <div class="creator-panel">
-            <h2 style="margin:0; font-size: 1.2rem; color:white;">Criar Nova Forma</h2>
-            <div style="font-size: 0.8rem; color: #94a3b8;">
-                Desenhe ou importe um PNG. O sistema irá "escanear" a forma automaticamente.
-            </div>
-            
-            <div class="creator-tools">
-                <button class="tool-btn" id="btnClearShape">🗑️ Limpar</button>
-                <label class="tool-btn tool-btn-imp">
-                    📂 Importar PNG
-                    <input type="file" id="importShapeInput" hidden accept="image/*">
-                </label>
-            </div>
-
-            <div class="creator-canvas-wrapper">
-                <canvas id="creatorCanvas" width="400" height="400"></canvas>
-            </div>
-            
-            <input type="text" id="shapeNameInput" placeholder="Nome da forma (ex: Estrela)" style="padding: 10px; background: #0f172a; border: 1px solid var(--border); color: white; border-radius: 4px;">
-
-<label style="display: flex; align-items: center; gap: 8px; font-size: 0.9rem; color: #cbd5e1; cursor: pointer; background: #334155; padding: 8px; border-radius: 4px;">
-    <input type="checkbox" id="fixedDirectionCheck" style="accent-color: #a855f7; width: 16px; height: 16px;">
-    🔒 Direção Única (Não rotacionar)
-</label>
-
-<div class="creator-tools">
-            
-            <div class="creator-tools">
-                <button class="tool-btn" onclick="toggleCreator(false)" style="background: transparent; border: 1px solid var(--border);">Cancelar</button>
-                <button class="tool-btn" id="btnSaveShape" style="background: var(--success); color:black; font-weight:bold;">Salvar Forma</button>
-            </div>
+    <div class="header">
+        <div class="logo">🎨 Estúdio HD <span>PRO</span></div>
+        <div style="display: flex; gap: 10px;">
+            <button class="tool-btn" id="btnRecord">⏺️ Gravar Vídeo</button>
+            <button class="tool-btn" id="btnDownload">📷 Foto</button>
         </div>
     </div>
 
-    <header class="header">
-        <div class="header-left">
-            <button class="toggle-sidebar-btn" id="sidebarToggle" title="Minimizar/Expandir Menu">☰</button>
-            <div>
-                <h1>Gerador de Arte Geométrica</h1>
-                <div style="font-size: 0.8rem; color: #64748b;"></div>
+    <div class="main-area">
+        
+        <div class="sidebar">
+            
+            <div class="control-group">
+                <div class="control-title">Tamanho & Opacidade</div>
+                <label>Tamanho: <span id="valSize">20</span></label>
+                <input type="range" id="sizeRange" min="5" max="200" value="20">
+                
+                <label>Espalhamento: <span id="valSpread">10</span></label>
+                <input type="range" id="spreadRange" min="0" max="100" value="10">
+            </div>
+
+            <div class="control-group">
+                <div class="control-title">Paleta de Cores</div>
+                <div class="tool-grid">
+                    <button class="tool-btn active" onclick="setPalette('neon')">🌈 Neon</button>
+                    <button class="tool-btn" onclick="setPalette('fire')">🔥 Fogo</button>
+                    <button class="tool-btn" onclick="setPalette('ice')">❄️ Gelo</button>
+                    <button class="tool-btn" onclick="setPalette('matrix')">💻 Matrix</button>
+                    <button class="tool-btn" onclick="setPalette('cyber')">🤖 Cyber</button>
+                    <button class="tool-btn" onclick="setPalette('mono')">⚫ Mono</button>
+                </div>
+            </div>
+
+            <div class="control-group" style="flex: 1; display: flex; flex-direction: column;">
+                <div class="control-title">Pincéis & Formas</div>
+                <div class="brush-list" id="shapesContainer">
+                    <div class="brush-item active" onclick="selectShape('circle')">⏺️ Círculo Suave</div>
+                    <div class="brush-item" onclick="selectShape('square')">⏹️ Quadrado Digital</div>
+                    <div class="brush-item" onclick="selectShape('star')">⭐ Estrela</div>
+                </div>
+                
+                <button class="btn-new-shape" id="btnOpenCreator">➕ Criar Novo Pincel</button>
+            </div>
+
+        </div>
+
+        <div id="canvas-wrapper">
+            <canvas id="mainCanvas"></canvas>
+        </div>
+
+        <div class="shape-creator" id="creatorPanel">
+            <div style="display: flex; justify-content: space-between; color: white; margin-bottom: 10px;">
+                <h3>Criador de Pincel Personalizado</h3>
+                <button onclick="toggleCreator(false)" style="background:none; border:none; color:white; font-size: 1.5rem; cursor:pointer;">&times;</button>
+            </div>
+            
+            <div class="creator-canvas-area">
+                <canvas id="creatorCanvas" width="400" height="400"></canvas>
+                <div style="position: absolute; bottom: 10px; left: 10px; color: #94a3b8; font-size: 0.8rem;">
+                    * Clique para adicionar pontos. O último ponto fecha a forma.
+                </div>
+            </div>
+
+            <div class="creator-controls">
+                <button class="tool-btn" onclick="clearCreator()">🧹 Limpar</button>
+                <button class="tool-btn" onclick="undoCreator()">↩️ Desfazer</button>
+                
+                <div style="width: 1px; height: 30px; background: #334155; margin: 0 10px;"></div>
+
+                <input type="text" id="shapeNameInput" placeholder="Nome da forma (ex: Estrela)" style="padding: 10px; background: #0f172a; border: 1px solid var(--border); color: white; border-radius: 4px;">
+
+                <label style="display: flex; align-items: center; gap: 8px; font-size: 0.9rem; color: #cbd5e1; cursor: pointer; background: #334155; padding: 8px; border-radius: 4px;">
+                    <input type="checkbox" id="fixedDirectionCheck" style="accent-color: #a855f7; width: 16px; height: 16px;">
+                    🔒 Direção Única (Não rotacionar)
+                </label>
+
+                <div class="creator-tools" style="margin-top: 15px;">
+                    <button class="tool-btn" onclick="toggleCreator(false)" style="background: transparent; border: 1px solid var(--border);">Cancelar</button>
+                    <button class="tool-btn" id="btnSaveShape" style="background: var(--success); color:black; font-weight:bold;">Salvar Forma</button>
+                </div>
             </div>
         </div>
-    </header>
 
-    <div class="app-container" id="appGrid">
-        <aside class="sidebar">
-            <div class="panel-section">
-                <h3>Fontes de Imagem</h3>
-                <button id="btnRandom" class="btn btn-random" style="margin-bottom: 8px;">🎲 Aleatória</button>
-                <button id="btnToggleSearch" class="btn btn-search" style="margin-bottom: 8px;">🔍 Pesquisar Tema</button>
-                <div id="searchPanel">
-                    <input type="text" id="searchInput" placeholder="Ex: Gato, Praia, Neon...">
-                    <button id="btnDoSearch" class="btn" style="background:var(--accent); color:#000; padding: 5px;">Buscar Foto</button>
-                </div>
-                <label class="btn btn-upload">
-                    📂 Upload Arquivo
-                    <input type="file" id="fileInput" hidden accept="image/*">
-                </label>
-            </div>
-
-            <hr style="border:0; border-top:1px solid var(--border); width: 100%;">
-            
-            <div class="panel-section">
-                <h3>Efeitos Avançados</h3>
-                <label class="shape-option" style="margin-bottom: 8px;">
-                    <input type="checkbox" id="flowFieldCheck"> 
-                    <span>🌊 Flow Field (Seguir bordas)</span>
-                </label>
-                
-                <div class="control-label" style="margin-top: 5px;">🎨 Paleta de Cores</div>
-                <select id="colorPaletteSelect" style="margin-bottom: 10px;">
-                    <option value="original">Original (Foto)</option>
-                    <option value="cyberpunk">Cyberpunk (Roxo/Neon)</option>
-                    <option value="noir">Noir (Preto e Branco)</option>
-                    <option value="fire">Inferno (Laranja/Preto)</option>
-                    <option value="matrix">Matrix (Verde/Preto)</option>
-                </select>
-            </div>
-
-            <hr style="border:0; border-top:1px solid var(--border); width: 100%;">
-            
-            <div class="panel-section">
-                <h3>Formas Geométricas</h3>
-                <div class="sidebar-shapes" id="shapesContainer">
-                    <label class="shape-option"><input type="checkbox" value="circle" checked> Bolas</label>
-                    <label class="shape-option"><input type="checkbox" value="square" checked> Cubos</label>
-                    <label class="shape-option"><input type="checkbox" value="triangle"> Triâng</label>
-                    <label class="shape-option"><input type="checkbox" value="line"> Linhas</label>
-                </div>
-                <button id="btnOpenCreator" class="btn btn-create">➕Crie Formas</button>
-            </div>
-            
-            <hr style="border:0; border-top:1px solid var(--border); width: 100%;">
-            
-            <div class="panel-section" style="flex: 1;">
-                <h3>🔥 Top Buscas</h3>
-                <div id="trendingList" style="display: flex; flex-direction: column; gap: 6px;"></div>
-            </div>
-        </aside>
-
-        <main class="workspace">
-            <div class="canvas-area" id="canvasContainer">
-                <button id="btnExitFS" title="Sair da Tela Cheia">✕</button>
-
-                <div class="status-overlay" id="statusOverlay">
-                    <span class="loader" id="loader"></span>
-                    <div class="status-text" id="statusText">Escolha uma opção à esquerda para começar</div>
-                </div>
-                <canvas id="artCanvas"></canvas>
-            </div>
-
-            <div class="controls-bar">
-                <div class="control-group">
-                    <div class="control-label">⏱️ Trocar em</div>
-                    <select id="timeSelect">
-                        <option value="15000">15 Segundos</option>
-                        <option value="30000" selected>30 Segundos</option>
-                        <option value="60000">1 Minuto</option>
-                        <option value="120000">2 Minutos</option>
-                        <option value="240000">4 Minutos</option>
-                        <option value="9999999">Infinito</option>
-                    </select>
-                </div>
-
-                <button id="btnDetailMode" class="btn btn-toggle active" title="Controla o tamanho automaticamente">
-                    ✨ Evolução
-                </button>
-
-                <button id="btnFluidMode" class="btn btn-toggle active" title="Não limpa a tela ao trocar">
-                    🌊 Transição
-                </button>
-
-                <div class="control-group">
-                    <div class="control-label">
-                        <span>🚀 Velocidade</span>
-                        <span id="speedVal">Auto</span>
-                    </div>
-                    <input type="range" id="speedSlider" min="1" max="50" value="40">
-                </div>
-
-                <div class="control-group disabled" id="abstractionGroup">
-                    <div class="control-label">📏 Escala</div>
-                    <input type="range" id="abstractionSlider" min="1" max="100" value="50">
-                </div>
-                
-                <button id="btnRecord" class="btn btn-action btn-rec" title="Gravar Vídeo (WebM)">🔴</button>
-                <button id="btnDownload" class="btn btn-action btn-dl" title="Salvar PNG">💾</button>
-                <button id="btnFullscreen" class="btn btn-action btn-fs" title="Tela Cheia">⛶</button>
-            </div>
-        </main>
     </div>
 
     <script>
-        const config = { 
-            width: 1920, height: 1080, 
-            shapes: ['circle', 'square'], 
-            abstraction: 50, paintSpeed: 40, duration: 30000, 
-            isRunning: false, startTime: 0, 
-            currentMode: 'none', currentTag: '', 
-            evolutionMode: true, fluidMode: true,
-            isLoadingNext: false,
-            retryCount: 0, maxRetries: 10,
-            useFlowField: false,
-            colorPalette: 'original',
-            flowAngles: null 
+        /**
+         * LÓGICA CORE DO APLICATIVO
+         */
+        const canvas = document.getElementById('mainCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        let width, height;
+        let particles = [];
+        let mouse = { x: 0, y: 0, active: false };
+        let currentPalette = 'neon';
+        let currentShape = 'circle';
+        
+        // Configurações
+        const config = {
+            size: 20,
+            spread: 10,
+            density: 2,
+            decay: 0.96
         };
-        
-        const customShapesRegistry = {}; 
-        
-        let mediaRecorder = null;
-        let recordedChunks = [];
-        let isRecording = false;
 
-        const canvas = document.getElementById('artCanvas');
-        const ctx = canvas.getContext('2d', { willReadFrequently: true });
-        
-        let sourceData = null; 
-        let sourceW = 0, sourceH = 0; 
-        let animationFrameId = null, originalImg = null;
+        // Paletas de Cor
+        const palettes = {
+            neon:   ['#f0f', '#0ff', '#ff0', '#0f0'],
+            fire:   ['#ff0000', '#ff4d00', '#ff9900', '#ffcc00'],
+            ice:    ['#a6f0ff', '#00ccff', '#0066ff', '#0000cc'],
+            matrix: ['#0f0', '#00ff33', '#003300'],
+            cyber:  ['#ff0055', '#220033', '#00dbe3'],
+            mono:   ['#fff', '#aaa', '#555']
+        };
 
-        function init() { canvas.width = config.width; canvas.height = config.height; generateTrending(); updateDetailBtnUI(); updateFluidBtnUI(); }
+        // Registro de Formas
+        const customShapesRegistry = {};
 
-        function generateTrending() {
-            const themes = [ { name: "Cyberpunk", tag: "cyberpunk,city", color: "#22d3ee" }, { name: "Natureza", tag: "forest,jungle", color: "#4ade80" }, { name: "Retrowave", tag: "synthwave,neon", color: "#f472b6" }, { name: "Espaço", tag: "nebula,stars", color: "#818cf8" }, { name: "Geometria", tag: "geometric,architecture", color: "#fb923c" } ];
-            const container = document.getElementById('trendingList'); container.innerHTML = '';
-            themes.forEach((item, i) => {
-                const btn = document.createElement('button'); btn.className = 'btn btn-trend';
-                btn.innerHTML = `<span>#${i+1} ${item.name}</span> <span style="color:${item.color};">TOCAR</span>`;
-                btn.onclick = () => { config.currentMode = 'search'; config.currentTag = item.tag; searchImage(item.tag); };
-                container.appendChild(btn);
+        // Inicialização
+        function init() {
+            resize();
+            window.addEventListener('resize', resize);
+            
+            // Mouse Events
+            canvas.addEventListener('mousemove', e => {
+                mouse.x = e.offsetX;
+                mouse.y = e.offsetY;
+                if(mouse.active) spawnParticles();
             });
+            canvas.addEventListener('mousedown', () => { mouse.active = true; spawnParticles(); });
+            canvas.addEventListener('mouseup', () => mouse.active = false);
+
+            // UI Events
+            document.getElementById('sizeRange').oninput = (e) => {
+                config.size = parseInt(e.target.value);
+                document.getElementById('valSize').innerText = config.size;
+            };
+            document.getElementById('spreadRange').oninput = (e) => {
+                config.spread = parseInt(e.target.value);
+                document.getElementById('valSpread').innerText = config.spread;
+            };
+
+            animate();
+            initCreator();
         }
 
-        function getSearchURL(keyword) {
-            return `https://loremflickr.com/1920/1080/${encodeURIComponent(keyword)}?lock=${Date.now()}`;
+        function resize() {
+            width = canvas.width = document.getElementById('canvas-wrapper').clientWidth;
+            height = canvas.height = document.getElementById('canvas-wrapper').clientHeight;
         }
 
-        function searchImage(keyword) { 
-            config.currentMode = 'search'; config.currentTag = keyword;
-            config.retryCount = 0;
-            const url = getSearchURL(keyword);
-            if(config.isRunning && config.fluidMode) loadSilentImage(url);
-            else loadImage(url); 
-        }
-
-        function setLoading(isLoading, text) {
-            const el = document.getElementById('statusOverlay');
-            if(isLoading) { el.style.display = 'flex'; document.getElementById('statusText').innerText = text; document.getElementById('loader').style.display = 'block'; } else { el.style.display = 'none'; }
-        }
-
-        function loadImage(baseUrl) {
-            setLoading(true, config.retryCount > 0 ? `Tentativa ${config.retryCount}/${config.maxRetries}...` : "Carregando imagem...");
-            config.isRunning = false; 
-            if(animationFrameId) cancelAnimationFrame(animationFrameId);
-            const img = new Image(); img.crossOrigin = "Anonymous"; 
-            img.onload = () => { originalImg = img; startArt(true); config.retryCount = 0; setLoading(false); };
-            img.onerror = () => { handleImageError(true); };
-            img.src = baseUrl;
-        }
-
-        function loadSilentImage(baseUrl) {
-            if(config.isLoadingNext && config.retryCount === 0) return;
-            config.isLoadingNext = true;
-            const img = new Image(); img.crossOrigin = "Anonymous";
-            img.onload = () => { originalImg = img; startArt(false); config.retryCount = 0; config.isLoadingNext = false; };
-            img.onerror = () => { handleImageError(false); };
-            img.src = baseUrl;
-        }
-
-        function handleImageError(isExplicit) {
-            config.retryCount++;
-            if (config.retryCount <= config.maxRetries) {
-                const nextUrl = getSearchURL(config.currentTag);
-                setTimeout(() => { isExplicit ? loadImage(nextUrl) : loadSilentImage(nextUrl); }, 1000);
-            } else {
-                config.retryCount = 0; config.currentMode = 'random';
-                if(isExplicit) {
-                    setLoading(true, "Erro. Voltando para Aleatório...");
-                    setTimeout(() => { loadImage(`https://picsum.photos/1920/1080?random=${Date.now()}`); }, 2000);
-                } else {
-                    loadSilentImage(`https://picsum.photos/1920/1080?random=${Date.now()}`);
-                }
+        function spawnParticles() {
+            for(let i=0; i<config.density; i++) {
+                particles.push(new Particle(mouse.x, mouse.y));
             }
         }
 
-        function triggerNextImage() { 
-            config.retryCount = 0;
-            if (config.currentMode === 'search') loadSilentImage(getSearchURL(config.currentTag));
-            else if (config.currentMode === 'random') loadSilentImage(`https://picsum.photos/1920/1080?random=${Date.now()}`);
-        }
-
-        function startArt(clearCanvas) {
-            const analysisW = config.width; 
-            const analysisH = config.height;
-            sourceW = analysisW; sourceH = analysisH;
-
-            const offCanvas = document.createElement('canvas'); 
-            offCanvas.width = analysisW; offCanvas.height = analysisH;
-            const offCtx = offCanvas.getContext('2d'); 
-            
-            drawImageCover(offCtx, originalImg, analysisW, analysisH);
-            
-            try { 
-                const imgData = offCtx.getImageData(0, 0, analysisW, analysisH);
-                sourceData = imgData.data; 
+        class Particle {
+            constructor(x, y) {
+                this.x = x + (Math.random() - 0.5) * config.spread * 4;
+                this.y = y + (Math.random() - 0.5) * config.spread * 4;
+                this.size = Math.random() * config.size;
+                this.life = 1.0;
+                this.color = palettes[currentPalette][Math.floor(Math.random() * palettes[currentPalette].length)];
                 
-                config.flowAngles = new Float32Array(analysisW * analysisH);
-                for(let y = 1; y < analysisH - 1; y++) {
-                    for(let x = 1; x < analysisW - 1; x++) {
-                        const i = (y * analysisW + x) * 4;
-                        const getLum = (ox, oy) => {
-                            const idx = ((y+oy) * analysisW + (x+ox)) * 4;
-                            return (sourceData[idx]*0.299 + sourceData[idx+1]*0.587 + sourceData[idx+2]*0.114);
-                        };
-                        
-                        const gx = (getLum(1,-1) + 2*getLum(1,0) + getLum(1,1)) - (getLum(-1,-1) + 2*getLum(-1,0) + getLum(-1,1));
-                        const gy = (getLum(-1,1) + 2*getLum(0,1) + getLum(1,1)) - (getLum(-1,-1) + 2*getLum(0,-1) + getLum(1,-1));
-                        
-                        config.flowAngles[y * analysisW + x] = Math.atan2(gy, gx) + Math.PI/2;
-                    }
-                }
-
-            } catch(e) { 
-                console.error(e);
-                if(clearCanvas) handleImageError(true); else handleImageError(false); return;
+                // Movimento aleatório
+                this.vx = (Math.random() - 0.5) * 2;
+                this.vy = (Math.random() - 0.5) * 2;
+                this.rotation = Math.random() * Math.PI * 2;
+                this.rotSpeed = (Math.random() - 0.5) * 0.2;
             }
 
-            if(clearCanvas || !config.fluidMode) { 
-                if (config.colorPalette === 'cyberpunk') ctx.fillStyle = "#050014";
-                else if (config.colorPalette === 'noir') ctx.fillStyle = "#000000";
-                else if (config.colorPalette === 'fire') ctx.fillStyle = "#1a0500";
-                else if (config.colorPalette === 'matrix') ctx.fillStyle = "#001a00";
-                else ctx.fillStyle = "#111111"; 
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                this.rotation += this.rotSpeed;
+                this.life *= config.decay;
+                this.size *= 0.98;
+            }
+
+            draw() {
+                ctx.globalAlpha = this.life;
+                ctx.fillStyle = this.color;
                 
-                ctx.fillRect(0, 0, config.width, config.height); 
+                drawShape(this.x, this.y, this.size, currentShape, this.rotation);
+                
+                ctx.globalAlpha = 1;
             }
-            
-            config.startTime = Date.now();
-            config.isRunning = true; 
-            if(!animationFrameId) loop();
         }
 
-        function getOptimalSpeed(size) {
-            const loops = (config.paintSpeed / 10) * Math.pow(160 / Math.max(size, 1), 1.25);
-            return Math.floor(Math.max(loops, 3)); 
-        }
-
-        function getPaletteColor(r, g, b) {
-            if (config.colorPalette === 'original') return `rgb(${r},${g},${b})`;
-            
-            const lum = (r * 0.299 + g * 0.587 + b * 0.114) / 255; 
-            
-            if (config.colorPalette === 'cyberpunk') {
-                const rN = Math.floor(40 + (lum * (34 - 40)) + (lum * 200)); 
-                const rf = 46 * (1-lum) + 0 * lum;
-                const gf = 0 * (1-lum) + 242 * lum;
-                const bf = 79 * (1-lum) + 255 * lum;
-                return `rgb(${rf|0},${gf|0},${bf|0})`;
-            }
-            if (config.colorPalette === 'noir') {
-                const val = lum * 255;
-                return `rgb(${val|0},${val|0},${val|0})`;
-            }
-            if (config.colorPalette === 'fire') {
-                 let rf, gf, bf;
-                 if(lum < 0.5) {
-                    const t = lum * 2;
-                    rf = 255 * t; gf = 0; bf = 0;
-                 } else {
-                    const t = (lum - 0.5) * 2;
-                    rf = 255; gf = 255 * t; bf = 0;
-                 }
-                 return `rgb(${rf|0},${gf|0},${bf|0})`;
-            }
-            if (config.colorPalette === 'matrix') {
-                return `rgb(0, ${Math.floor(lum * 255)}, 0)`;
-            }
-            return `rgb(${r},${g},${b})`;
-        }
-
-        function loop() {
-            if(!config.isRunning || !sourceData) { animationFrameId = null; return; }
-
-            const elapsed = Date.now() - config.startTime;
-            const duration = parseInt(config.duration);
-            
-            if(elapsed > duration) {
-                if(!config.isLoadingNext && config.currentMode !== 'upload') triggerNextImage();
-            }
-
-            let currentBaseSize = 20;
-            const T_GROW = 3000; const T_HOLD = 500; const T_TOTAL_TRANS = T_GROW + T_HOLD;
-
-            if (config.evolutionMode) {
-                if (config.fluidMode && elapsed < T_TOTAL_TRANS) {
-                    if (elapsed < T_GROW) {
-                        const t = elapsed / T_GROW;
-                        currentBaseSize = 5 + (175 * (t*t)); 
-                    } else { currentBaseSize = 180; }
-                } else {
-                    const progress = Math.min(elapsed / duration, 1.0);
-                    const shrinkLimit = duration >= 120000 ? 0.4 : 0.6;
-                    let sizeProgress = progress / shrinkLimit; 
-                    if (sizeProgress > 1) sizeProgress = 1;
-                    currentBaseSize = 40 * (4.0 * (1 - sizeProgress) + 0.1 * sizeProgress);
-                }
-            } else {
-                currentBaseSize = map(config.abstraction, 1, 100, 5, 80);
-            }
-            if (currentBaseSize < 2) currentBaseSize = 2;
-
-            let loopsThisFrame = getOptimalSpeed(currentBaseSize);
-            if (loopsThisFrame > 600) loopsThisFrame = 600;
-
-            let shapesToUse = config.shapes.length > 0 ? config.shapes : ['circle'];
-            
-            for(let i=0; i < loopsThisFrame; i++) {
-                const ax = Math.floor(Math.random() * sourceW);
-                const ay = Math.floor(Math.random() * sourceH);
-                
-                const idx = (ay * sourceW + ax) * 4;
-                
-                if (!sourceData[idx+3] || sourceData[idx+3] < 20) continue; 
-
-                const x = (ax / sourceW) * config.width;
-                const y = (ay / sourceH) * config.height;
-
-                const naturalJitter = 0.6 + (Math.random() * 0.8);
-                const brightness = (sourceData[idx] + sourceData[idx+1] + sourceData[idx+2]) / 3;
-                const finalSize = currentBaseSize * (0.8 + (brightness / 255) * 0.4) * naturalJitter;
-                
-                const r = sourceData[idx], g = sourceData[idx+1], b = sourceData[idx+2];
-                
-                const colorStr = getPaletteColor(r,g,b);
-                ctx.fillStyle = colorStr;
-                ctx.strokeStyle = colorStr;
-
-                let angle = 0;
-                if (config.useFlowField) {
-                    angle = config.flowAngles[ay * sourceW + ax];
-                } else {
-                    angle = Math.random() * Math.PI * 2;
-                }
-                
-                drawShape(x, y, finalSize, shapesToUse[Math.floor(Math.random() * shapesToUse.length)], angle);
-            }
-            animationFrameId = requestAnimationFrame(loop);
-        }
-
+        // Função de Desenho Centralizada
         function drawShape(x, y, size, s, angle) {
+            // Se for forma customizada
             if (customShapesRegistry[s]) {
                 const points = customShapesRegistry[s];
                 if (!points || points.length < 3) return; 
@@ -700,7 +450,7 @@
                 
                 ctx.beginPath();
                 ctx.moveTo(points[0].x * size, points[0].y * size);
-                for (let i = 1; i < points.length; i++) {
+                for(let i=1; i<points.length; i++) {
                     ctx.lineTo(points[i].x * size, points[i].y * size);
                 }
                 ctx.closePath();
@@ -708,258 +458,146 @@
                 ctx.restore();
                 return;
             }
-            
+
+            // Formas Padrão
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.rotate(angle);
+
             ctx.beginPath();
-            if(s === 'circle') { 
-                ctx.arc(x, y, size/2, 0, Math.PI*2); ctx.fill(); 
-            }
-            else if(s === 'square') { 
-                ctx.save(); ctx.translate(x, y); ctx.rotate(angle); 
-                ctx.rect(-size/2, -size/2, size, size); ctx.fill(); ctx.restore(); 
-            }
-            else if(s === 'triangle') { 
-                ctx.save(); ctx.translate(x, y); ctx.rotate(angle + Math.PI/2); 
-                const h = size * 0.866; 
-                ctx.moveTo(0, -h/2); ctx.lineTo(-size/2, h/2); ctx.lineTo(size/2, h/2); 
-                ctx.fill(); ctx.restore(); 
-            }
-            else if(s === 'line') { 
-                ctx.lineWidth = Math.max(1, size/4); 
-                ctx.moveTo(x-Math.cos(angle)*size, y-Math.sin(angle)*size); 
-                ctx.lineTo(x+Math.cos(angle)*size, y+Math.sin(angle)*size); 
-                ctx.stroke(); 
-            }
-        }
-
-        function drawImageCover(ctx, img, w, h) {
-            const r = Math.max(w / img.width, h / img.height);
-            ctx.drawImage(img, (w - img.width * r) / 2, (h - img.height * r) / 2, img.width * r, img.height * r);
-        }
-        function map(v, a, b, c, d) { return c + ((v-a)/(b-a)) * (d-c); }
-
-        document.getElementById('btnFullscreen').onclick = () => { const el = document.getElementById('canvasContainer'); el.requestFullscreen().catch(e=>alert(e)); };
-        document.getElementById('btnExitFS').onclick = () => { if(document.exitFullscreen) document.exitFullscreen(); };
-        
-        document.getElementById('btnDetailMode').onclick = () => { config.evolutionMode = !config.evolutionMode; updateDetailBtnUI(); };
-        document.getElementById('btnFluidMode').onclick = () => { config.fluidMode = !config.fluidMode; updateFluidBtnUI(); };
-
-        function updateDetailBtnUI() { 
-            const b = document.getElementById('btnDetailMode'), g = document.getElementById('abstractionGroup');
-            if(config.evolutionMode) { b.classList.add('active'); g.classList.add('disabled'); document.getElementById('speedVal').innerText = "Auto"; }
-            else { b.classList.remove('active'); g.classList.remove('disabled'); }
-        }
-
-        function updateFluidBtnUI() {
-            const b = document.getElementById('btnFluidMode');
-            if(config.fluidMode) { b.classList.add('active'); }
-            else { b.classList.remove('active'); }
-        }
-
-        document.getElementById('timeSelect').onchange = (e) => config.duration = parseInt(e.target.value);
-        document.getElementById('speedSlider').oninput = (e) => { config.paintSpeed = parseInt(e.target.value); if(!config.evolutionMode) document.getElementById('speedVal').innerText = config.paintSpeed > 30 ? "Turbo" : "Manual"; };
-        document.getElementById('abstractionSlider').oninput = (e) => config.abstraction = parseInt(e.target.value);
-        document.getElementById('flowFieldCheck').onchange = (e) => config.useFlowField = e.target.checked;
-        document.getElementById('colorPaletteSelect').onchange = (e) => config.colorPalette = e.target.value;
-
-        function updateShapesList() {
-             config.shapes = Array.from(document.querySelectorAll('#shapesContainer input:checked')).map(c => c.value);
-        }
-        document.querySelectorAll('#shapesContainer input').forEach(cb => { cb.onchange = updateShapesList; });
-
-        document.getElementById('btnDownload').onclick = () => { const a = document.createElement('a'); a.download = 'Arte_' + Date.now() + '.png'; a.href = canvas.toDataURL(); a.click(); };
-        document.getElementById('btnRandom').onclick = () => { config.currentMode = 'random'; 
-            if(config.isRunning && config.fluidMode) loadSilentImage(`https://picsum.photos/1920/1080?random=${Date.now()}`);
-            else loadImage(`https://picsum.photos/1920/1080?random=${Date.now()}`); 
-        };
-        document.getElementById('btnToggleSearch').onclick = () => { const p = document.getElementById('searchPanel'); p.style.display = p.style.display === 'block' ? 'none' : 'block'; };
-        document.getElementById('btnDoSearch').onclick = () => { const val = document.getElementById('searchInput').value; if(val) searchImage(val); };
-        document.getElementById('searchInput').onkeypress = (e) => { if(e.key === 'Enter') { const val = document.getElementById('searchInput').value; if(val) searchImage(val); } };
-        document.getElementById('fileInput').onchange = (e) => { const f = e.target.files[0]; if(f) { config.currentMode = 'upload'; setLoading(true, "Processando..."); const r = new FileReader(); r.onload = (evt) => loadImage(evt.target.result); r.readAsDataURL(f); } };
-
-        document.getElementById('sidebarToggle').onclick = () => {
-            document.getElementById('appGrid').classList.toggle('sidebar-closed');
-        };
-
-        document.getElementById('btnRecord').onclick = () => {
-            if(isRecording) stopRecording();
-            else startRecording();
-        };
-
-        function startRecording() {
-            try {
-                const stream = canvas.captureStream(30);
-                mediaRecorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
-                recordedChunks = [];
-                mediaRecorder.ondataavailable = (e) => { if (e.data.size > 0) recordedChunks.push(e.data); };
-                mediaRecorder.onstop = saveRecording;
-                mediaRecorder.start();
-                isRecording = true;
-                const btn = document.getElementById('btnRecord');
-                btn.classList.add('recording');
-                btn.innerHTML = '⬛';
-                btn.title = "Parar Gravação";
-            } catch(e) { alert("Gravação não suportada neste navegador."); }
-        }
-
-        function stopRecording() {
-            if(!mediaRecorder) return;
-            mediaRecorder.stop();
-            isRecording = false;
-            const btn = document.getElementById('btnRecord');
-            btn.classList.remove('recording');
-            btn.innerHTML = '🔴';
-            btn.title = "Gravar Vídeo";
-        }
-
-        function saveRecording() {
-            const blob = new Blob(recordedChunks, { type: 'video/webm' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `Video_Arte_${Date.now()}.webm`;
-            a.click();
-            URL.revokeObjectURL(url);
-        }
-
-        const creatorModal = document.getElementById('creatorModal');
-        const creatorCanvas = document.getElementById('creatorCanvas');
-        const cCtx = creatorCanvas.getContext('2d', { willReadFrequently: true });
-        let isDrawing = false;
-        let drawnPoints = []; 
-
-        function toggleCreator(show) {
-            creatorModal.classList.toggle('active', show);
-            if(show) resetCreator();
-        }
-
-        function resetCreator() {
-            cCtx.clearRect(0,0,400,400); 
-            drawnPoints = [];
-        }
-        
-        function getMousePos(evt) {
-            const rect = creatorCanvas.getBoundingClientRect();
-            return {
-                x: (evt.clientX - rect.left) * (creatorCanvas.width / rect.width),
-                y: (evt.clientY - rect.top) * (creatorCanvas.height / rect.height)
-            };
-        }
-
-        document.getElementById('btnClearShape').onclick = resetCreator;
-
-        document.getElementById('importShapeInput').onchange = (e) => {
-            const file = e.target.files[0];
-            if(!file) return;
-            const reader = new FileReader();
-            reader.onload = (evt) => {
-                const img = new Image();
-                img.onload = () => {
-                    radialScanImage(img);
-                };
-                img.src = evt.target.result;
-            };
-            reader.readAsDataURL(file);
-        };
-
-        // NOVA FUNÇÃO: Scanner Radial (muito mais robusto que o anterior)
-        function radialScanImage(img) {
-            resetCreator();
-            const w = 150, h = 150; 
-            const tempC = document.createElement('canvas');
-            tempC.width = w; tempC.height = h;
-            const tempCtx = tempC.getContext('2d');
-            
-            // Desenha imagem centralizada
-            const scale = Math.min(w/img.width, h/img.height) * 0.85;
-            const dw = img.width * scale, dh = img.height * scale;
-            const dx = (w-dw)/2, dy = (h-dh)/2;
-            tempCtx.drawImage(img, dx, dy, dw, dh);
-            
-            const data = tempCtx.getImageData(0, 0, w, h).data;
-            const cx = w/2, cy = h/2;
-            let points = [];
-            
-            // Dispara 72 raios (um a cada 5 graus)
-            const rayCount = 72; 
-            for (let i = 0; i < rayCount; i++) {
-                const angle = (i / rayCount) * Math.PI * 2;
-                const cos = Math.cos(angle);
-                const sin = Math.sin(angle);
-                
-                // Vai do centro para fora
-                let lastValidX = cx;
-                let lastValidY = cy;
-                
-                // Escaneia do centro até a borda
-                for (let r = 0; r < w/2; r++) {
-                    const tx = Math.floor(cx + cos * r);
-                    const ty = Math.floor(cy + sin * r);
-                    
-                    if (tx < 0 || tx >= w || ty < 0 || ty >= h) break;
-                    
-                    const idx = (ty * w + tx) * 4;
-                    // Se o pixel não é transparente
-                    if (data[idx+3] > 40) { 
-                        lastValidX = tx;
-                        lastValidY = ty;
-                    }
+            if (s === 'circle') {
+                ctx.arc(0, 0, size/2, 0, Math.PI*2);
+            } else if (s === 'square') {
+                ctx.rect(-size/2, -size/2, size, size);
+            } else if (s === 'star') {
+                for(let i=0; i<5; i++) {
+                    ctx.lineTo(Math.cos((18+i*72)/180*Math.PI)*size/2, 
+                               -Math.sin((18+i*72)/180*Math.PI)*size/2);
+                    ctx.lineTo(Math.cos((54+i*72)/180*Math.PI)*size/4, 
+                               -Math.sin((54+i*72)/180*Math.PI)*size/4);
                 }
-                
-                // Normaliza para o canvas de 400px
-                points.push({
-                    x: lastValidX * (400/w),
-                    y: lastValidY * (400/h)
-                });
             }
-
-            drawnPoints = points;
-            redrawFromPoints();
+            ctx.fill();
+            ctx.restore();
         }
 
-        function redrawFromPoints() {
-            if(drawnPoints.length < 2) return;
+        function animate() {
+            // Rastro suave
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+            ctx.fillRect(0, 0, width, height);
+
+            for (let i = particles.length - 1; i >= 0; i--) {
+                const p = particles[i];
+                p.update();
+                p.draw();
+                if (p.life < 0.05) particles.splice(i, 1);
+            }
+            requestAnimationFrame(animate);
+        }
+
+        // Funções de Interface
+        window.setPalette = (p) => {
+            currentPalette = p;
+            document.querySelectorAll('.control-group .tool-btn').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+        };
+
+        window.selectShape = (s) => {
+            currentShape = s;
+            document.querySelectorAll('.brush-item').forEach(b => b.classList.remove('active'));
+            
+            // Remove active dos customizados tbm
+            document.querySelectorAll('.custom-shape-label input').forEach(i => i.checked = false);
+
+            if(event && event.currentTarget) event.currentTarget.classList.add('active');
+        };
+
+        // -------------------------------------------------------------------
+        // SISTEMA DE CRIAÇÃO DE FORMAS (CREATOR)
+        // -------------------------------------------------------------------
+        
+        let cCtx, creatorCanvas;
+        let drawnPoints = [];
+        let isCreating = false;
+
+        function initCreator() {
+            creatorCanvas = document.getElementById('creatorCanvas');
+            cCtx = creatorCanvas.getContext('2d');
+            
+            creatorCanvas.addEventListener('mousedown', (e) => {
+                const rect = creatorCanvas.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                drawnPoints.push({x, y});
+                renderCreator();
+            });
+        }
+
+        function renderCreator() {
             cCtx.clearRect(0,0,400,400);
+            
+            // Grid
+            cCtx.strokeStyle = '#334155';
+            cCtx.lineWidth = 1;
+            cCtx.beginPath();
+            cCtx.moveTo(200, 0); cCtx.lineTo(200, 400);
+            cCtx.moveTo(0, 200); cCtx.lineTo(400, 200);
+            cCtx.stroke();
+
+            if (drawnPoints.length === 0) return;
+
+            // Desenho
+            cCtx.strokeStyle = '#22c55e';
+            cCtx.lineWidth = 2;
+            cCtx.fillStyle = 'rgba(34, 197, 94, 0.2)';
+            
             cCtx.beginPath();
             cCtx.moveTo(drawnPoints[0].x, drawnPoints[0].y);
-            for(let i=1; i<drawnPoints.length; i++) cCtx.lineTo(drawnPoints[i].x, drawnPoints[i].y);
-            cCtx.closePath();
+            for(let i=1; i<drawnPoints.length; i++) {
+                cCtx.lineTo(drawnPoints[i].x, drawnPoints[i].y);
+            }
             
-            cCtx.strokeStyle = "#ef4444"; 
-            cCtx.lineWidth = 3;
+            // Preview de fechamento
+            if(drawnPoints.length > 2) {
+                cCtx.closePath();
+                cCtx.fill();
+            }
+            
             cCtx.stroke();
-            cCtx.fillStyle = "rgba(239, 68, 68, 0.2)";
-            cCtx.fill();
+
+            // Pontos
+            cCtx.fillStyle = 'white';
+            drawnPoints.forEach(p => {
+                cCtx.beginPath();
+                cCtx.arc(p.x, p.y, 4, 0, Math.PI*2);
+                cCtx.fill();
+            });
         }
 
-        creatorCanvas.addEventListener('mousedown', (e) => { 
-            isDrawing = true; 
-            drawnPoints = []; 
-            const pt = getMousePos(e);
-            drawnPoints.push(pt);
-            cCtx.clearRect(0,0,400,400);
-            cCtx.beginPath(); cCtx.moveTo(pt.x, pt.y);
-        });
-
-        creatorCanvas.addEventListener('mousemove', (e) => {
-            if(!isDrawing) return;
-            const pt = getMousePos(e);
-            const last = drawnPoints[drawnPoints.length-1];
-            if(Math.hypot(pt.x - last.x, pt.y - last.y) > 5) {
-                drawnPoints.push(pt);
-                cCtx.lineTo(pt.x, pt.y);
-                cCtx.strokeStyle = "#38bdf8"; cCtx.lineWidth = 2; cCtx.stroke();
+        window.toggleCreator = (show) => {
+            const panel = document.getElementById('creatorPanel');
+            if(show) {
+                panel.classList.add('open');
+                clearCreator();
+            } else {
+                panel.classList.remove('open');
             }
-        });
+        };
 
-        creatorCanvas.addEventListener('mouseup', () => { 
-            isDrawing = false; 
-            if(drawnPoints.length > 2) {
-                cCtx.lineTo(drawnPoints[0].x, drawnPoints[0].y);
-                cCtx.strokeStyle = "#22c55e"; cCtx.stroke();
-                cCtx.fillStyle = "rgba(34, 197, 94, 0.2)"; cCtx.fill();
-            }
-        });
+        window.clearCreator = () => {
+            drawnPoints = [];
+            document.getElementById('shapeNameInput').value = '';
+            document.getElementById('fixedDirectionCheck').checked = false; // Resetar checkbox
+            renderCreator();
+        };
 
+        window.undoCreator = () => {
+            drawnPoints.pop();
+            renderCreator();
+        };
+
+        // Salvar Forma Customizada
         document.getElementById('btnSaveShape').onclick = () => {
             if(drawnPoints.length < 3) { alert("Desenhe ou importe uma forma!"); return; }
 
@@ -967,19 +605,21 @@
             
             // NOVO: Ler o estado do checkbox
             const isFixed = document.getElementById('fixedDirectionCheck').checked;
-            
-            let minX=1000, maxX=0, minY=1000, maxY=0;
-            drawnPoints.forEach(p => {
-                if(p.x < minX) minX = p.x; if(p.x > maxX) maxX = p.x;
-                if(p.y < minY) minY = p.y; if(p.y > maxY) maxY = p.y;
-            });
-            const width = maxX - minX;
-            const height = maxY - minY;
-            const centerX = minX + width/2;
-            const centerY = minY + height/2;
-            const scale = Math.max(width, height) || 1;
 
-          const normalizedPoints = drawnPoints.map(p => ({
+            // Centralizar
+            let minX = 400, maxX = 0, minY = 400, maxY = 0;
+            drawnPoints.forEach(p => {
+                if(p.x < minX) minX = p.x;
+                if(p.x > maxX) maxX = p.x;
+                if(p.y < minY) minY = p.y;
+                if(p.y > maxY) maxY = p.y;
+            });
+            
+            const centerX = (minX + maxX) / 2;
+            const centerY = (minY + maxY) / 2;
+            const scale = Math.max(maxX - minX, maxY - minY) || 1; // Normalizar tamanho
+
+            const normalizedPoints = drawnPoints.map(p => ({
                 x: (p.x - centerX) / scale,
                 y: (p.y - centerY) / scale
             }));
@@ -1028,11 +668,32 @@
             toggleCreator(false);
         };
 
+        function updateShapesList() {
+            // Lógica para quando o usuário seleciona uma forma customizada
+            // Permite selecionar apenas 1 customizada por vez para simplificar
+            document.querySelectorAll('.custom-shape-label input').forEach(input => {
+                input.onclick = (e) => {
+                    const id = e.target.value;
+                    if(e.target.checked) {
+                        currentShape = id;
+                        // Desmarcar formas padrão
+                        document.querySelectorAll('.brush-item').forEach(b => b.classList.remove('active'));
+                        // Desmarcar outros customizados
+                        document.querySelectorAll('.custom-shape-label input').forEach(other => {
+                            if(other !== e.target) other.checked = false;
+                        });
+                    } else {
+                        // Se desmarcar, volta pro circle
+                        currentShape = 'circle';
+                        document.querySelector('.brush-item').classList.add('active');
+                    }
+                };
+            });
+        }
+
         document.getElementById('btnOpenCreator').onclick = () => toggleCreator(true);
 
         init();
     </script>
 </body>
 </html>
-
-
